@@ -3,8 +3,8 @@
     "rootDir": "./src",
     "outDir": "./lib/",
     "noImplicitAny": true,
-    "module": "es6",
-    "target": "es6",
+    "module": "commonjs",
+    "target": "esnext",
     "allowJs": true,
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
@@ -15,6 +15,7 @@
     "node_modules",
     "Typings",
     "test",
-    "coverage"
+    "coverage",
+    "lib"
   ]
 }

@@ -4,7 +4,7 @@ import * as Hapi from 'hapi';
 import * as winston from 'winston';
 import ServerOptions from './serverOptions';
 import { reach } from 'joi';
-import hapiAuthJwt2 from 'hapi-auth-jwt2';
+const hapiAuthJwt2 = require('hapi-auth-jwt2');
 import { RouteConfiguration, Request } from 'hapi';
 require('winston-daily-rotate-file');
 
