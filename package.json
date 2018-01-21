@@ -1,0 +1,54 @@
+{
+  "name": "hapijs-starter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/reperio/hapijs-starter.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/reperio/hapijs-starter/issues"
+  },
+  "homepage": "https://github.com/reperio/hapijs-starter#readme",
+  "dependencies": {
+    "hapi": "^17.2.0",
+    "hapi-auth-jwt2": "^7.4.1",
+    "hapijs-status-monitor": "git+https://github.com/bgardner87/hapijs-status-monitor.git",
+    "winston": "^2.4.0",
+    "winston-daily-rotate-file": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/hapi": "^16.1.12",
+    "@types/jest": "^22.0.1",
+    "@types/node": "^9.3.0",
+    "@types/winston": "^2.3.7",
+    "eslint": "^4.16.0",
+    "jest": "^22.1.4",
+    "ts-jest": "^22.0.1",
+    "ts-loader": "^3.3.0",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.6.2",
+    "typescript-eslint-parser": "^11.0.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}
