@@ -4,20 +4,20 @@
 
 | Property  | Type  | Default Value  | Details |
 |---|---|---|---|
-| host  | string  | '0.0.0.0'  |   |
-| port  | number  | 3000  |   |
-| cors  | boolean  | true  |   |
-| statusMonitor  | boolean  | true  |   |
-| defaultRoute  | boolean  | true  |   |
-| logDirectory  | string  | ./logs  |   |
-| logLevel  | string  | 'debug'  |   |
-| logJson  | boolean  | true  |   |
-| logDefaultFileTransport  | boolean  | true  |   |
-| logDefaultConsoleTransport  | boolean  | true  |   |
-| logDefaultTraceTransport  | boolean  | true  |   |
-| logAddtionalLoggerTransports  | Array<any>  | []  |   |
-| logAddtionalTraceTranceports  | Array<any>  | []  |   |
-| logAutoTraceLogging  | boolean  | true  |   |
-| authEnabled  | boolean  | true  |   |
-| authSecret  | string  | null  |   |
-| authValidateFunc  | (decoded: any, request: any, callback: any) => any;  | (decoded, request, callback) = { return { isValid: true };}  |   |
+| host  | string  | '0.0.0.0'  | HapiJS host binding  |
+| port  | number  | 3000  | HapiJS port binding  |
+| cors  | boolean  | true  | Adds a global route for HTTP OPTIONS requests that responds with options headers to allow CORS requests  |
+| statusMonitor  | boolean  | true  | Adds the hapijs-status-monitor plugin that exposes a /status route to get basic server status information  |
+| defaultRoute  | boolean  | true  | Adds a default route that responds with 'hello' to be used for heartbeat requests from reverse proxies  |
+| logDirectory  | string  | ./logs  | directory to store file based logs  |
+| logLevel  | string  | 'debug'  | log level for winston logging  |
+| logJson  | boolean  | true  | should the logs be in JSON format?  |
+| logDefaultFileTransport  | boolean  | true  | Add the default file transport to the logger  |
+| logDefaultConsoleTransport  | boolean  | true  | Add the default console transport to the logger  |
+| logDefaultTraceTransport  | boolean  | true  | Add the default trace transport to the logger  |
+| logAddtionalLoggerTransports  | Array<any>  | []  | Additional transports to add to the app logger  |
+| logAddtionalTraceTranceports  | Array<any>  | []  | Additional transports to add to the trace logger  |
+| logAutoTraceLogging  | boolean  | true  | Automatically log http requests to the trace log  |
+| authEnabled  | boolean  | true  | Enable JWT authentication  |
+| authSecret  | string  | null  | JWT secret used to validate JWTs. Required if authEnabled === true  |
+| authValidateFunc  | (decoded: any, request: any, callback: any) => any;  | (decoded, request, callback) = { return { isValid: true };}  | Additional validation function based on hapi-auth-jwt2 validation function  |
