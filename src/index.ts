@@ -9,34 +9,30 @@ import { RouteConfiguration, Request } from 'hapi';
 require('winston-daily-rotate-file');
 
 export default class Server {
-    static defaultSecret: string = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
     static defaults: ServerOptions = {
         host: '0.0.0.0',
         port: 3000,
         cors: true,
         defaultRoute: true,
         statusMonitor: true,
-        auth: {
-            enabled: true,
-            secret: Server.defaultSecret,
-            validateFunc: (decoded, request, callback) => {
-                return { isValid: true };
-            }
+        authEnabled: true,
+        authSecret: null,
+        authValidateFunc: (decoded, request, callback) => {
+            return { isValid: true };
         },
-        logging: {
-            logDirectory: './logs',
-            logLevel: 'debug',
-            json: true,
+        logDirectory: './logs',
+        logLevel: 'debug',
+        logJson: true,
 
-            defaultFileTransport: true,
-            defaultConsoleTransport: true,
-            defaultTraceTransport: true,
+        logDefaultFileTransport: true,
+        logDefaultConsoleTransport: true,
+        logDefaultTraceTransport: true,
 
-            autoTraceLogging: true,
+        logAutoTraceLogging: true,
 
-            addtionalLoggerTransports: [],
-            addtionalTraceTranceports: []
-        }
+        logAddtionalLoggerTransports: [],
+        logAddtionalTraceTranceports: []
+        
     }
 
     server: any;
@@ -50,22 +46,26 @@ export default class Server {
         const logTransports = [];
         const traceTransports = [];
 
-        if (this.config.logging.defaultFileTransport) {
+        if (this.config.authEnabled && !this.config.authSecret) {
+            throw new Error('JWT Auth secret must be provided if auth is enabled. Set config.auth.enabled = false or provide a value for config.auth.secret.');
+        }
+
+        if (this.config.logDefaultFileTransport) {
             logTransports.push(new (winston.transports.DailyRotateFile)({
-                filename: `${this.config.logging.logDirectory}/app.log`,
+                filename: `${this.config.logDirectory}/app.log`,
                 datePattern: 'yyyy-MM-dd.',
                 prepend: true,
-                level: this.config.logging.logLevel,
+                level: this.config.logLevel,
                 humanReadableUnhandledException: true,
                 handleExceptions: true,
                 json: true
             }));
         }
 
-        if (this.config.logging.defaultConsoleTransport) {
+        if (this.config.logDefaultConsoleTransport) {
             logTransports.push(new (winston.transports.Console)({
                 prepend: true,
-                level: this.config.logging.logLevel,
+                level: this.config.logLevel,
                 humanReadableUnhandledException: true,
                 handleExceptions: true,
                 json: false,
@@ -73,12 +73,12 @@ export default class Server {
             }));
         }
 
-        if (this.config.logging.defaultTraceTransport) {
+        if (this.config.logDefaultTraceTransport) {
             traceTransports.push(new (winston.transports.DailyRotateFile)({
-                filename: `${this.config.logging.logDirectory}/trace.log`,
+                filename: `${this.config.logDirectory}/trace.log`,
                 datePattern: 'yyyy-MM-dd.',
                 prepend: true,
-                level: this.config.logging.logLevel,
+                level: this.config.logLevel,
                 humanReadableUnhandledException: true,
                 handleExceptions: true,
                 json: true
@@ -128,7 +128,7 @@ export default class Server {
             });
         }
 
-        if (this.config.logging.autoTraceLogging) {
+        if (this.config.logAutoTraceLogging) {
             this.server.ext({
                 type: "onPreResponse",
                 method: async (req: Request, h: any) => {
@@ -139,13 +139,13 @@ export default class Server {
             });
         }
 
-        if (this.config.auth.enabled) {
+        if (this.config.authEnabled) {
             await this.server.register(hapiAuthJwt2);
             
             this.server.auth.strategy('jwt', 'jwt',
             {
-                key: this.config.auth.secret,
-                validate: this.config.auth.validateFunc,
+                key: this.config.authSecret,
+                validate: this.config.authValidateFunc,
                 verifyOptions: { algorithms: [ 'HS256' ] }
             });
         

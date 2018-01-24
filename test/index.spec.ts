@@ -2,13 +2,25 @@
 import Server from '../src/index';
 import { RouteConfiguration } from 'hapi';
 
+const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
+
+describe('Server initialization', () => {
+    it('should throw exception if auth.secret is not provided', async () => {
+        const config = Object.assign({}, Server.defaults, {});
+        const server = new Server(config);
+
+        await expect(server.initialize()).rejects.toBeDefined();
+    });
+});
+
 describe('Server with default settings', () => {
     let server: Server;
 
     beforeAll(async () => {
-        server = new Server(Server.defaults);
+        const config = Object.assign({}, Server.defaults, {authSecret: defaultSecret});
+        server = new Server(config);
         await server.initialize();
-    })
+    });
 
     it('should export server', () => {
         expect(server).toBeDefined();
@@ -178,7 +190,7 @@ describe('Server with default route disbaled', () => {
     let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {defaultRoute: false});
+        const config = Object.assign({}, Server.defaults, {defaultRoute: false, authSecret: defaultSecret});
 
         server = new Server(config);
         await server.initialize();
@@ -200,7 +212,7 @@ describe('Server with default cors disbaled', () => {
     let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {cors: false});
+        const config = Object.assign({}, Server.defaults, {cors: false, authSecret: defaultSecret});
 
         server = new Server(config);
         await server.initialize();

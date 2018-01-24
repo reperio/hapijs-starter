@@ -1,30 +1,24 @@
-class LoggingOptions {
-    logDirectory: string;
-    logLevel: string;
-    json: boolean;
-
-    defaultFileTransport: boolean;
-    defaultConsoleTransport: boolean;
-    defaultTraceTransport: boolean;
-    
-    addtionalLoggerTransports: Array<any>;
-    addtionalTraceTranceports: Array<any>;
-
-    autoTraceLogging: boolean;
-}
-
-class AuthOptions {
-    enabled: boolean;
-    secret: string;
-    validateFunc: (decoded: any, request: any, callback: any) => any;
-}
-
 export default class ServerOptions {
     host: string;
     port: number;
     cors: boolean;
     statusMonitor: boolean;
     defaultRoute: boolean;
-    logging: LoggingOptions;
-    auth: AuthOptions;
+
+    logDirectory: string;
+    logLevel: string;
+    logJson: boolean;
+
+    logDefaultFileTransport: boolean;
+    logDefaultConsoleTransport: boolean;
+    logDefaultTraceTransport: boolean;
+    
+    logAddtionalLoggerTransports: Array<any>;
+    logAddtionalTraceTranceports: Array<any>;
+
+    logAutoTraceLogging: boolean;
+
+    authEnabled: boolean;
+    authSecret: string;
+    authValidateFunc: (decoded: any, request: any, callback: any) => any;
 }
