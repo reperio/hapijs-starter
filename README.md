@@ -1,8 +1,9 @@
 # hapijs-starter
 
 #Configuration Options
+
 | Property  | Type  | Default Value  | Details |
-|---|---|---|
+|---|---|---|---|
 | host  | string  |   |   |
 | port  | number  |   |   |
 | cors  | boolean  |   |   |
