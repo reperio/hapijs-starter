@@ -4,20 +4,20 @@
 
 | Property  | Type  | Default Value  | Details |
 |---|---|---|---|
-| host  | string  |   |   |
-| port  | number  |   |   |
-| cors  | boolean  |   |   |
-| statusMonitor  | boolean  |   |   |
-| defaultRoute  | boolean  |   |   |
-| logDirectory  | string  |   |   |
-| logLevel  | string  |   |   |
-| logJson  | boolean  |   |   |
-| logDefaultFileTransport  | boolean  |   |   |
-| logDefaultConsoleTransport  | boolean  |   |   |
-| logDefaultTraceTransport  | boolean  |   |   |
-| logAddtionalLoggerTransports  | Array<any>  |   |   |
-| logAddtionalTraceTranceports  | Array<any>  |   |   |
-| logAutoTraceLogging  | boolean  |   |   |
-| authEnabled  | boolean  |   |   |
-| authSecret  | string  |   |   |
-| authValidateFunc  | (decoded: any, request: any, callback: any) => any;  |   |   |
+| host  | string  | '0.0.0.0'  |   |
+| port  | number  | 3000  |   |
+| cors  | boolean  | true  |   |
+| statusMonitor  | boolean  | true  |   |
+| defaultRoute  | boolean  | true  |   |
+| logDirectory  | string  | ./logs  |   |
+| logLevel  | string  | 'debug'  |   |
+| logJson  | boolean  | true  |   |
+| logDefaultFileTransport  | boolean  | true  |   |
+| logDefaultConsoleTransport  | boolean  | true  |   |
+| logDefaultTraceTransport  | boolean  | true  |   |
+| logAddtionalLoggerTransports  | Array<any>  | []  |   |
+| logAddtionalTraceTranceports  | Array<any>  | []  |   |
+| logAutoTraceLogging  | boolean  | true  |   |
+| authEnabled  | boolean  | true  |   |
+| authSecret  | string  | null  |   |
+| authValidateFunc  | (decoded: any, request: any, callback: any) => any;  | (decoded, request, callback) = { return { isValid: true };}  |   |
