@@ -19,8 +19,8 @@
   "homepage": "https://github.com/reperio/hapijs-starter#readme",
   "dependencies": {
     "hapi": "^17.2.0",
-    "hapi-auth-jwt2": "git@github.com:salzhrani/hapi-auth-jwt2.git#v-17",
-    "hapijs-status-monitor": "git@github.com:bgardner87/hapijs-status-monitor.git",
+    "hapi-auth-jwt2": "https://github.com/salzhrani/hapi-auth-jwt2.git#v-17",
+    "hapijs-status-monitor": "https://github.com/bgardner87/hapijs-status-monitor.git",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2"
   },
