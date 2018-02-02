@@ -184,6 +184,41 @@ describe('Server with default settings', () => {
         expect(response.statusCode).toBe(200);
         expect(response.payload).toBe('test');
     });
+
+    it('should allow registering an extension', async() => {
+        const route: RouteConfiguration = {
+            method: 'GET',
+            path: '/extension-test',
+            handler: (req: Request, h: any) => {
+                return req.app.testValue;
+            },
+            config: {
+                auth: false
+            }
+        };
+
+        server.registerAdditionalRoutes([route]);
+
+        const extension = {
+            type: "onRequest",
+            method: (request, h) => {
+                request.app.testValue = "onPostAuthTest";
+                return h.continue;
+            }
+        };
+
+        await server.registerExtension(extension);
+
+        const options = {
+            method: 'GET',
+            url: '/extension-test'
+        };
+
+        const response = await server.server.inject(options);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.payload).toBe('onPostAuthTest');
+    });
 });
 
 describe('Server with default route disbaled', () => {
