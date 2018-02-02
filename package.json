@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/reperio/hapijs-starter#readme",
   "dependencies": {
+    "file-system": "^2.2.2",
     "@types/hapi": "^16.1.12",
     "@types/hapi-auth-jwt2": "^7.0.7",
     "@types/jest": "^22.0.1",

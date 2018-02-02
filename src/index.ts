@@ -4,6 +4,9 @@ import * as Hapi from 'hapi';
 import * as winston from 'winston';
 import ServerOptions from './serverOptions';
 import { reach } from 'joi';
+import * as fs from 'fs';
+import * as path from 'path';
+
 const hapiAuthJwt2 = require('hapi-auth-jwt2');
 import { RouteConfiguration, Request, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
 require('winston-daily-rotate-file');
@@ -47,6 +50,16 @@ export default class Server {
 
     registerAdditionalRoutes(routes: Array<RouteConfiguration>) {
         this.server.route(routes);
+    }
+
+    registerRoutesFromDirectory(directory: string) {
+        fs
+            .readdirSync(directory)
+            .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.js')
+            .forEach((fileName : any) => {
+                this.server.route(require(path.join(directory, fileName)).default);
+                this.logger().info(`Added ${fileName} to the API routes.`);
+            });
     }
 
     async registerAdditionalPlugin(plugin: any) {
@@ -175,8 +188,12 @@ export default class Server {
 
         if (!this.config.testMode) {
             await this.server.start();
-            this.server.app.logger.info(`Server running at: ${this.server.info.uri}`);
+            this.logger().info(`Server running at: ${this.server.info.uri}`);
         }
+    }
+
+    logger() : winston.LoggerInstance {
+        return this.server.app.logger;
     }
 }
 
