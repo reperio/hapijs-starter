@@ -1,5 +1,5 @@
 import ServerOptions from './serverOptions';
-import { RouteConfiguration, ServerStartExtConfigurationObject } from 'hapi';
+import { RouteConfiguration, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
 export default class Server {
     static defaults: ServerOptions;
     server: any;
@@ -8,6 +8,6 @@ export default class Server {
     initialize(): Promise<void>;
     registerAdditionalRoutes(routes: Array<RouteConfiguration>): void;
     registerAdditionalPlugin(plugin: any): Promise<any>;
-    registerExtension(extension: ServerStartExtConfigurationObject): void;
+    registerExtension(param1: ServerStartExtConfigurationObject | ServerStartExtConfigurationObject[] | ServerRequestExtConfigurationObjectWithRequest | ServerRequestExtConfigurationObjectWithRequest[]): void;
     startServer(isTestMode?: boolean): Promise<void>;
 }
