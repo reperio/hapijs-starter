@@ -5,7 +5,7 @@ import * as winston from 'winston';
 import ServerOptions from './serverOptions';
 import { reach } from 'joi';
 const hapiAuthJwt2 = require('hapi-auth-jwt2');
-import { RouteConfiguration, Request } from 'hapi';
+import { RouteConfiguration, Request, ServerStartExtConfigurationObject } from 'hapi';
 require('winston-daily-rotate-file');
 
 export default class Server {
@@ -163,6 +163,10 @@ export default class Server {
 
     async registerAdditionalPlugin(plugin: any) {
         return await this.server.register(plugin);
+    }
+
+    registerExtension(extension: ServerStartExtConfigurationObject) {
+        this.server.ext(extension);
     }
 
     async startServer(isTestMode: boolean = false) : Promise<void> {
