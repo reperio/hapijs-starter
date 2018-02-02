@@ -1,6 +1,26 @@
 # hapijs-starter
 
-# Configuration Options
+Runs a fully-configured HAPI server with Winston logging.
+
+## Setup
+
+All you need to do to run the server is to call it in an async method when your application starts.
+
+```
+import {Server} from 'hapijs-starter';
+import * as path from 'path';
+
+async function startServer() : Promise<void> {
+    const server = new Server({});
+    await server.initialize();
+    await server.registerRoutesFromDirectory(path.resolve(__dirname, './api'));
+    await server.startServer(false);
+}
+
+startServer();
+```
+
+## Configuration Options
 
 | Property  | Type  | Default Value  | Details |
 |---|---|---|---|

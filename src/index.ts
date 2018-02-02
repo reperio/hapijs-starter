@@ -11,7 +11,7 @@ const hapiAuthJwt2 = require('hapi-auth-jwt2');
 import { RouteConfiguration, Request, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
 require('winston-daily-rotate-file');
 
-export default class Server {
+export class Server {
     static defaults: ServerOptions = {
         host: '0.0.0.0',
         port: 3000,
@@ -42,7 +42,7 @@ export default class Server {
     config: ServerOptions;
     app: any;
 
-    constructor(options?: ServerOptions) {
+    constructor(options?: Partial<ServerOptions>) {
         this.config = Object.assign({}, Server.defaults, options);
         this.server = new Hapi.Server(<any>{ port: this.config.port, host: this.config.host });
         this.app = this.server.app;
