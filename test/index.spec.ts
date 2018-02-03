@@ -6,7 +6,7 @@ const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
 describe('Server initialization', () => {
     it('should throw exception if auth.secret is not provided', async () => {
-        const config = Object.assign({}, Server.defaults, {});
+        const config = Object.assign({}, Server.defaults, {authEnabled:true});
         const server = new Server(config);
 
         await expect(server.initialize()).rejects.toBeDefined();
@@ -17,7 +17,7 @@ describe('Server with default settings', () => {
     let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {authSecret: defaultSecret});
+        const config = Object.assign({}, Server.defaults, {authEnabled: true, authSecret: defaultSecret});
         server = new Server(config);
         await server.initialize();
     });

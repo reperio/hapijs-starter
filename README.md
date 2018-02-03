@@ -18,6 +18,6 @@
 | logAddtionalLoggerTransports  | Array<any>  | []  | Additional transports to add to the app logger  |
 | logAddtionalTraceTranceports  | Array<any>  | []  | Additional transports to add to the trace logger  |
 | logAutoTraceLogging  | boolean  | true  | Automatically log http requests to the trace log  |
-| authEnabled  | boolean  | true  | Enable JWT authentication  |
+| authEnabled  | boolean  | false  | Enable JWT authentication  |
 | authSecret  | string  | null  | JWT secret used to validate JWTs. Required if authEnabled === true  |
 | authValidateFunc  | (decoded: any, request: any, callback: any) => any;  | (decoded, request, callback) = { return { isValid: true };}  | Additional validation function based on hapi-auth-jwt2 validation function  |

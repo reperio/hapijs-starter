@@ -15,7 +15,7 @@ export default class Server {
         cors: true,
         defaultRoute: true,
         statusMonitor: true,
-        authEnabled: true,
+        authEnabled: false,
         authSecret: null,
         authValidateFunc: (decoded, request, callback) => {
             return { isValid: true };
