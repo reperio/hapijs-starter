@@ -25,7 +25,7 @@
     "@types/winston": "^2.3.7",
     "hapi": "^17.2.0",
     "hapi-auth-jwt2": "https://github.com/salzhrani/hapi-auth-jwt2.git#v-17",
-    "hapijs-status-monitor": "https://github.com/bgardner87/hapijs-status-monitor.git",
+    "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2"
   },
