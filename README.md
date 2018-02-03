@@ -20,7 +20,6 @@ async function startServer() : Promise<void> {
 }
 
 startServer();
-```
 
 | Property  | Type  | Default Value  | Details |
 |---|---|---|---|
