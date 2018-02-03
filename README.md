@@ -1,5 +1,7 @@
 # hapijs-starter
 
+## Configuration Options
+
 Runs a fully-configured HAPI server with Winston logging.
 
 ## Setup
@@ -19,8 +21,6 @@ async function startServer() : Promise<void> {
 
 startServer();
 ```
-
-## Configuration Options
 
 | Property  | Type  | Default Value  | Details |
 |---|---|---|---|
