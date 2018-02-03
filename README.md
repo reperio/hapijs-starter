@@ -1,6 +1,6 @@
 # hapijs-starter
 
-#Configuration Options
+# Configuration Options
 
 | Property  | Type  | Default Value  | Details |
 |---|---|---|---|
