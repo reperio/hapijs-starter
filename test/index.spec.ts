@@ -100,19 +100,19 @@ describe('Server with default settings', () => {
     it('should allow registering routes from a directory', async () => {
         server.registerRoutesFromDirectory(path.resolve(__dirname, './routes'));
 
-        let response = await server.server.inject({method: 'GET', url: '/test'});
+        let response = await server.server.inject({method: 'GET', url: '/extfile/test'});
         expect(response.statusCode).toBe(200);
         expect(response.payload).toBe('This is a test.');
 
-        response = await server.server.inject({method: 'GET', url: '/test2'});
+        response = await server.server.inject({method: 'GET', url: '/extfile/test2'});
         expect(response.statusCode).toBe(200);
         expect(response.payload).toBe('This is another test.');
 
-        response = await server.server.inject({method: 'GET', url: '/test3'});
+        response = await server.server.inject({method: 'GET', url: '/extfile/test3'});
         expect(response.statusCode).toBe(200);
         expect(response.payload).toBe('This is a third test.');
 
-        response = await server.server.inject({method: 'GET', url: '/test4'});
+        response = await server.server.inject({method: 'GET', url: '/extfile/test4'});
         expect(response.statusCode).toBe(200);
         expect(response.payload).toBe('This is a fourth test.');
     });
