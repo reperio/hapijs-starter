@@ -55,7 +55,7 @@ export class Server {
     registerRoutesFromDirectory(directory: string) {
         fs
             .readdirSync(directory)
-            .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.js')
+            .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.ts')
             .forEach((fileName : any) => {
                 this.server.route(require(path.join(directory, fileName)).default);
                 this.logger().info(`Added ${fileName} to the API routes.`);

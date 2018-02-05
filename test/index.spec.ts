@@ -1,6 +1,7 @@
-
-import Server from '../src/index';
+import {Request, ServerRequestExtConfigurationObjectWithRequest, ServerStartExtConfigurationObject} from 'hapi';
+import {Server} from '../src/index';
 import { RouteConfiguration } from 'hapi';
+import * as path from 'path';
 
 const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
@@ -83,7 +84,7 @@ describe('Server with default settings', () => {
             }
         };
 
-        server.registerAdditionalRoutes([route])
+        server.registerAdditionalRoutes([route]);
 
         const options = {
             method: 'GET',
@@ -94,6 +95,26 @@ describe('Server with default settings', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.payload).toBe('test');
+    });
+
+    it('should allow registering routes from a directory', async () => {
+        server.registerRoutesFromDirectory(path.resolve(__dirname, './routes'));
+
+        let response = await server.server.inject({method: 'GET', url: '/test'});
+        expect(response.statusCode).toBe(200);
+        expect(response.payload).toBe('This is a test.');
+
+        response = await server.server.inject({method: 'GET', url: '/test2'});
+        expect(response.statusCode).toBe(200);
+        expect(response.payload).toBe('This is another test.');
+
+        response = await server.server.inject({method: 'GET', url: '/test3'});
+        expect(response.statusCode).toBe(200);
+        expect(response.payload).toBe('This is a third test.');
+
+        response = await server.server.inject({method: 'GET', url: '/test4'});
+        expect(response.statusCode).toBe(200);
+        expect(response.payload).toBe('This is a fourth test.');
     });
 
     it('should allow registering an authenticated route', async () => {
@@ -145,7 +166,7 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering a plugin', async() => {
-        const register = async (server, options) => {
+        const register = async (server: any, options: any) => {
             const route: RouteConfiguration = {
                 method: 'GET',
                 path: '/test',
@@ -199,10 +220,10 @@ describe('Server with default settings', () => {
 
         server.registerAdditionalRoutes([route]);
 
-        const extension = {
-            type: "onRequest",
-            method: (request, h) => {
-                request.app.testValue = "onPostAuthTest";
+        const extension : ServerRequestExtConfigurationObjectWithRequest = {
+            type: 'onRequest',
+            method: (request: Request, h: any) => {
+                request.app.testValue = 'onPostAuthTest';
                 return h.continue;
             }
         };
