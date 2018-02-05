@@ -62,7 +62,7 @@ export default class Server {
         const traceTransports = [];
 
         if (this.config.authEnabled && !this.config.authSecret) {
-            throw new Error('JWT Auth secret must be provided if auth is enabled. Set config.auth.enabled = false or provide a value for config.auth.secret.');
+            throw new Error('JWT Auth secret must be provided if auth is enabled. Set config.authEnabled = false or provide a value for config.authSecret.');
         }
 
         if (this.config.logDefaultFileTransport) {
