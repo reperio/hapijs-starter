@@ -31,18 +31,33 @@ export default class Server {
         logAutoTraceLogging: true,
 
         logAddtionalLoggerTransports: [],
-        logAddtionalTraceTranceports: []
-        
+        logAddtionalTraceTranceports: [],
+        testMode: false
     }
 
     server: any;
     config: ServerOptions;
+    app: any;
 
-    constructor(options: ServerOptions) {
+    constructor(options?: ServerOptions) {
         this.config = Object.assign({}, Server.defaults, options);
+        this.server = new Hapi.Server(<any>{ port: this.config.port, host: this.config.host });
+        this.app = this.server.app;
     }
 
-    async initialize() {
+    registerAdditionalRoutes(routes: Array<RouteConfiguration>) {
+        this.server.route(routes);
+    }
+
+    async registerAdditionalPlugin(plugin: any) {
+        return await this.server.register(plugin);
+    }
+
+    registerExtension(param1: ServerStartExtConfigurationObject | ServerStartExtConfigurationObject[] | ServerRequestExtConfigurationObjectWithRequest | ServerRequestExtConfigurationObjectWithRequest[]) {
+        this.server.ext(param1);
+    }
+
+    async startServer() : Promise<void> {
         const logTransports = [];
         const traceTransports = [];
 
@@ -54,6 +69,7 @@ export default class Server {
             logTransports.push(new (winston.transports.DailyRotateFile)({
                 filename: `${this.config.logDirectory}/app.log`,
                 datePattern: 'yyyy-MM-dd.',
+                createTree: true,
                 prepend: true,
                 level: this.config.logLevel,
                 humanReadableUnhandledException: true,
@@ -77,6 +93,7 @@ export default class Server {
             traceTransports.push(new (winston.transports.DailyRotateFile)({
                 filename: `${this.config.logDirectory}/trace.log`,
                 datePattern: 'yyyy-MM-dd.',
+                createTree: true,
                 prepend: true,
                 level: this.config.logLevel,
                 humanReadableUnhandledException: true,
@@ -93,7 +110,7 @@ export default class Server {
             transports: traceTransports
         });
 
-        this.server = new Hapi.Server(<any>{ port: this.config.port, host: this.config.host });
+        
         this.server.app.logger = logger;
         this.server.app.traceLogger = traceLogger;
         
@@ -155,22 +172,8 @@ export default class Server {
         if (this.config.statusMonitor) {
             await this.server.register({plugin: require('hapijs-status-monitor')});
         }
-    }
 
-    registerAdditionalRoutes(routes: Array<RouteConfiguration>) {
-        this.server.route(routes);
-    }
-
-    async registerAdditionalPlugin(plugin: any) {
-        return await this.server.register(plugin);
-    }
-
-    registerExtension(param1: ServerStartExtConfigurationObject | ServerStartExtConfigurationObject[] | ServerRequestExtConfigurationObjectWithRequest | ServerRequestExtConfigurationObjectWithRequest[]) {
-        this.server.ext(param1);
-    }
-
-    async startServer(isTestMode: boolean = false) : Promise<void> {
-        if (!isTestMode) {
+        if (!this.config.testMode) {
             await this.server.start();
             this.server.app.logger.info(`Server running at: ${this.server.info.uri}`);
         }

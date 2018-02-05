@@ -6,10 +6,10 @@ const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
 describe('Server initialization', () => {
     it('should throw exception if auth.secret is not provided', async () => {
-        const config = Object.assign({}, Server.defaults, {authEnabled:true});
+        const config = Object.assign({}, Server.defaults, {testMode: true, authEnabled:true});
         const server = new Server(config);
 
-        await expect(server.initialize()).rejects.toBeDefined();
+        await expect(server.startServer()).rejects.toBeDefined();
     });
 });
 
@@ -17,9 +17,9 @@ describe('Server with default settings', () => {
     let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {authEnabled: true, authSecret: defaultSecret});
+        const config = Object.assign({}, Server.defaults, {testMode: true, authEnabled: true, authSecret: defaultSecret});
         server = new Server(config);
-        await server.initialize();
+        await server.startServer();
     });
 
     it('should export server', () => {
@@ -225,10 +225,10 @@ describe('Server with default route disbaled', () => {
     let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {defaultRoute: false, authSecret: defaultSecret});
+        const config = Object.assign({}, Server.defaults, {testMode: true, defaultRoute: false, authSecret: defaultSecret});
 
         server = new Server(config);
-        await server.initialize();
+        await server.startServer();
     })
 
     it('should respond to get request on the root route with HTTP 404', async () => {
@@ -247,10 +247,10 @@ describe('Server with default cors disbaled', () => {
     let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {cors: false, authSecret: defaultSecret});
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
 
         server = new Server(config);
-        await server.initialize();
+        await server.startServer();
     })
 
     it('should respond to default options requests with 404', async () => {

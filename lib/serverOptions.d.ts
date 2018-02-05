@@ -16,4 +16,5 @@ export default class ServerOptions {
     authEnabled: boolean;
     authSecret: string;
     authValidateFunc: (decoded: any, request: any, callback: any) => any;
+    testMode: boolean;
 }

@@ -4,10 +4,10 @@ export default class Server {
     static defaults: ServerOptions;
     server: any;
     config: ServerOptions;
-    constructor(options: ServerOptions);
-    initialize(): Promise<void>;
+    app: any;
+    constructor(options?: ServerOptions);
     registerAdditionalRoutes(routes: Array<RouteConfiguration>): void;
     registerAdditionalPlugin(plugin: any): Promise<any>;
     registerExtension(param1: ServerStartExtConfigurationObject | ServerStartExtConfigurationObject[] | ServerRequestExtConfigurationObjectWithRequest | ServerRequestExtConfigurationObjectWithRequest[]): void;
-    startServer(isTestMode?: boolean): Promise<void>;
+    startServer(): Promise<void>;
 }
