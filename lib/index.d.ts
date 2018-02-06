@@ -1,6 +1,7 @@
 /// <reference types="winston" />
 import * as winston from 'winston';
 import ServerOptions from './serverOptions';
+import 'ts-node/register';
 import { RouteConfiguration, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
 export declare class Server {
     static defaults: ServerOptions;

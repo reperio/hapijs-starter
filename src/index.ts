@@ -6,6 +6,7 @@ import ServerOptions from './serverOptions';
 import { reach } from 'joi';
 import * as fs from 'fs';
 import * as path from 'path';
+import 'ts-node/register';
 
 const hapiAuthJwt2 = require('hapi-auth-jwt2');
 import { RouteConfiguration, Request, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
@@ -58,7 +59,7 @@ export class Server {
             .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.ts')
             .forEach((fileName : any) => {
                 this.server.route(require(path.join(directory, fileName)).default);
-                this.logger().info(`Added ${fileName} to the API routes.`);
+                console.log(`Added ${fileName} to the API routes.`);
             });
     }
 
