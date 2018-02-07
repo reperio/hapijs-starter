@@ -4,11 +4,15 @@ import * as Hapi from 'hapi';
 import * as winston from 'winston';
 import ServerOptions from './serverOptions';
 import { reach } from 'joi';
+import * as fs from 'fs';
+import * as path from 'path';
+import 'ts-node/register';
+
 const hapiAuthJwt2 = require('hapi-auth-jwt2');
 import { RouteConfiguration, Request, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
 require('winston-daily-rotate-file');
 
-export default class Server {
+export class Server {
     static defaults: ServerOptions = {
         host: '0.0.0.0',
         port: 3000,
@@ -39,7 +43,7 @@ export default class Server {
     config: ServerOptions;
     app: any;
 
-    constructor(options?: ServerOptions) {
+    constructor(options?: Partial<ServerOptions>) {
         this.config = Object.assign({}, Server.defaults, options);
         this.server = new Hapi.Server(<any>{ port: this.config.port, host: this.config.host });
         this.app = this.server.app;
@@ -47,6 +51,16 @@ export default class Server {
 
     registerAdditionalRoutes(routes: Array<RouteConfiguration>) {
         this.server.route(routes);
+    }
+
+    registerRoutesFromDirectory(directory: string) {
+        fs
+            .readdirSync(directory)
+            .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.ts')
+            .forEach((fileName : any) => {
+                this.server.route(require(path.join(directory, fileName)).default);
+                //console.log(`Added ${fileName} to the API routes.`);
+            });
     }
 
     async registerAdditionalPlugin(plugin: any) {
@@ -175,8 +189,12 @@ export default class Server {
 
         if (!this.config.testMode) {
             await this.server.start();
-            this.server.app.logger.info(`Server running at: ${this.server.info.uri}`);
+            this.logger().info(`Server running at: ${this.server.info.uri}`);
         }
+    }
+
+    logger() : winston.LoggerInstance {
+        return this.server.app.logger;
     }
 }
 
