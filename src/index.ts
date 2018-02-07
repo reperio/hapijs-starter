@@ -58,7 +58,7 @@ export class Server {
             .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.js')
             .forEach((fileName : any) => {
                 this.server.route(require(path.join(directory, fileName)).default);
-                console.log(`Added ${fileName} to the API routes.`);
+                //console.log(`Added ${fileName} to the API routes.`);
             });
     }
 
