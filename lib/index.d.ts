@@ -3,6 +3,7 @@ import * as winston from 'winston';
 import ServerOptions from './serverOptions';
 import 'ts-node/register';
 import { RouteConfiguration, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
+import 'winston-daily-rotate-file';
 export declare class Server {
     static defaults: ServerOptions;
     server: any;

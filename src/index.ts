@@ -6,11 +6,10 @@ import ServerOptions from './serverOptions';
 import { reach } from 'joi';
 import * as fs from 'fs';
 import * as path from 'path';
-import 'ts-node/register';
 
 const hapiAuthJwt2 = require('hapi-auth-jwt2');
 import { RouteConfiguration, Request, ServerStartExtConfigurationObject, ServerRequestExtConfigurationObjectWithRequest } from 'hapi';
-require('winston-daily-rotate-file');
+import 'winston-daily-rotate-file';
 
 export class Server {
     static defaults: ServerOptions = {
@@ -45,7 +44,7 @@ export class Server {
 
     constructor(options?: Partial<ServerOptions>) {
         this.config = Object.assign({}, Server.defaults, options);
-        this.server = new Hapi.Server(<any>{ port: this.config.port, host: this.config.host });
+        this.server = new Hapi.Server(<any>{ port: this.config.port, host: this.config.host, routes: {cors: this.config.cors} });
         this.app = this.server.app;
     }
 
@@ -56,7 +55,7 @@ export class Server {
     registerRoutesFromDirectory(directory: string) {
         fs
             .readdirSync(directory)
-            .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.ts')
+            .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.js')
             .forEach((fileName : any) => {
                 this.server.route(require(path.join(directory, fileName)).default);
                 console.log(`Added ${fileName} to the API routes.`);
@@ -148,7 +147,7 @@ export class Server {
                 handler: function(req: Request, h: any) {
                     const response = h.response('success');
                     response.type('text/plain');
-                    response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+                    response.header('Access-Control-Allow-Origin', '*');
                     response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
                     return response;
                 },
