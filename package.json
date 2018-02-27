@@ -35,7 +35,6 @@
     "jest": "^22.1.4",
     "ts-jest": "^22.0.1",
     "ts-loader": "^3.3.0",
-    "ts-node": "^4.1.0",
     "typescript": "^2.6.2",
     "typescript-eslint-parser": "^11.0.0"
   },
