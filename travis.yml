@@ -1,0 +1,10 @@
+language: node_js
+node_js:
+  - 9
+  - 8
+cache:
+  yarn: true
+  directories:
+    - node_modules
+after_success:
+    - './node_modules/.bin/jest && cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
