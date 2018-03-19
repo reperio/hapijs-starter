@@ -53,12 +53,13 @@ export class Server {
     }
 
     registerRoutesFromDirectory(directory: string) {
+        this.server.app.logger.info(`Loading routes from: ${directory}`);
         fs
             .readdirSync(directory)
             .filter((fileName : any) => fileName.indexOf('.') !== 0 && fileName.slice(-3) === '.js')
             .forEach((fileName : any) => {
                 this.server.route(require(path.join(directory, fileName)).default);
-                //console.log(`Added ${fileName} to the API routes.`);
+                this.server.app.logger.info(`Added ${fileName} to the API routes.`);
             });
     }
 
