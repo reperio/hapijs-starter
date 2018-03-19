@@ -52,7 +52,10 @@
       "json",
       "node"
     ],
-    "mapCoverage": true
+    "mapCoverage": true,
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "testEnvironment": "node"
   },
   "typings": "./lib/index.d.ts"
 }
