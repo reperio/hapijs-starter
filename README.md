@@ -1,4 +1,5 @@
 [![Coverage Status](https://coveralls.io/repos/github/reperio/hapijs-starter/badge.svg?branch=master)](https://coveralls.io/github/reperio/hapijs-starter?branch=master)
+[![Build Status](https://travis-ci.org/reperio/hapijs-starter.svg?branch=master)](https://travis-ci.org/reperio/hapijs-starter)
 # hapijs-starter
 
 ## Configuration Options
