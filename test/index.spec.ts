@@ -14,6 +14,98 @@ describe('Server initialization', () => {
     });
 });
 
+describe('CORS handling', () => {
+    it('should respond to options requests', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true});
+        let server = new Server(config);
+        await server.startServer();
+
+        const options = {
+            method: 'OPTIONS',
+            url: '/',
+            headers: {
+                Origin: 'https://test.com'
+            }
+        };
+
+        const response = await server.server.inject(options);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+    it('should respond to options requests when Origin header is not present', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true});
+        let server = new Server(config);
+        await server.startServer();
+
+        const options = {
+            method: 'OPTIONS',
+            url: '/'
+        };
+
+        const response = await server.server.inject(options);
+
+        expect(response.statusCode).toBe(200);
+    });
+
+    it('should include access-control-allow-origin header when given origin to use', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, corsOrigins: ['https://test.com']});
+        let server = new Server(config);
+        await server.startServer();
+
+        const options = {
+            method: 'OPTIONS',
+            url: '/',
+            headers: {
+                Origin: 'https://test.com'
+            }
+        };
+
+        const response = await server.server.inject(options);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['access-control-allow-origin']).toBe('https://test.com');
+    });
+
+    it('should include access-control-allow-origin header when given * as the origin', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, corsOrigins: ['*']});
+        let server = new Server(config);
+        await server.startServer();
+
+        const options = {
+            method: 'OPTIONS',
+            url: '/',
+            headers: {
+                Origin: 'https://test.com'
+            }
+        };
+
+        const response = await server.server.inject(options);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['access-control-allow-origin']).toBe('https://test.com');
+    });
+
+    it('should NOT include access-control-allow-origin header when NOT given origin to use', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true});
+        let server = new Server(config);
+        await server.startServer();
+
+        const options = {
+            method: 'OPTIONS',
+            url: '/',
+            headers: {
+                Origin: 'https://test.com'
+            }
+        };
+
+        const response = await server.server.inject(options);
+
+        expect(response.statusCode).toBe(200);
+        expect(response.headers['access-control-allow-origin']).toBe(undefined);
+    });
+})
+
 describe('Server with default settings', () => {
     let server: Server;
 
@@ -31,16 +123,7 @@ describe('Server with default settings', () => {
         expect(server.server).toBeDefined();
     });
 
-    it('should respond to options requests', async () => {
-        const options = {
-            method: 'OPTIONS',
-            url: '/'
-        };
-
-        const response = await server.server.inject(options);
-
-        expect(response.statusCode).toBe(200);
-    });
+    
 
     it('should respond to get request on the root route with "hello"', async () => {
         const options = {

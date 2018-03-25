@@ -16,6 +16,7 @@ export class Server {
         host: '0.0.0.0',
         port: 3000,
         cors: true,
+        corsOrigins: [],
         defaultRoute: true,
         statusMonitor: true,
         authEnabled: false,
@@ -145,16 +146,24 @@ export class Server {
             this.server.route({
                 method: 'OPTIONS',
                 path: '/{p*}',
-                handler: function(req: Request, h: any) {
+                handler: (req: Request, h: any) => {
                     const response = h.response('success');
+                    
+                    const origin = req.headers.origin;
+                    const originIndex = this.config.corsOrigins.indexOf(origin);
+                    const originMatch = this.config.corsOrigins.indexOf(origin) > -1 || this.config.corsOrigins.indexOf('*') > -1;
+
+                    if (origin && originMatch) {
+                        response.header('Access-Control-Allow-Origin', origin);
+                    }
+
                     response.type('text/plain');
-                    response.header('Access-Control-Allow-Origin', '*');
                     response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
                     response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
                     return response;
                 },
                 config: {
-                    cors: true,
+                    cors: false,
                     auth: false
                 }
             });

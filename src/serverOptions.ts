@@ -2,6 +2,7 @@ export default class ServerOptions {
     host: string;
     port: number;
     cors: boolean;
+    corsOrigins: Array<string>;
     statusMonitor: boolean;
     defaultRoute: boolean;
 
