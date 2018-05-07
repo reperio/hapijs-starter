@@ -163,7 +163,7 @@ export class Server {
                     return response;
                 },
                 config: {
-                    cors: false,
+                    cors: true,
                     auth: false
                 }
             });
