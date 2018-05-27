@@ -1,6 +1,6 @@
 {
   "name": "hapijs-starter",
-  "version": "3.5.0",
+  "version": "4.0.0",
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
@@ -12,23 +12,24 @@
     "url": "git+https://github.com/reperio/hapijs-starter.git"
   },
   "author": "",
-  "license": "MPL2",
+  "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/reperio/hapijs-starter/issues"
   },
   "homepage": "https://github.com/reperio/hapijs-starter#readme",
   "dependencies": {
-    "@types/hapi": "^16.1.12",
+    "@types/hapi": "17.0.12",
     "@types/hapi-auth-jwt2": "^7.0.7",
     "@types/jest": "^22.0.1",
     "@types/node": "^9.3.0",
     "@types/winston": "^2.3.7",
     "file-system": "^2.2.2",
-    "hapi": "^17.2.0",
-    "hapi-auth-jwt2": "https://github.com/salzhrani/hapi-auth-jwt2.git#v-17",
+    "hapi": "17.4.0",
+    "hapi-auth-jwt2": "8.1.0",
     "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
     "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^1.7.2"
+    "winston-daily-rotate-file": "^1.7.2",
+    "hoek": "^5.0.3"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",

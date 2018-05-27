@@ -1,7 +1,6 @@
-import {Request, ServerRequestExtConfigurationObjectWithRequest, ServerStartExtConfigurationObject} from 'hapi';
-import {Server} from '../src/index';
-import { RouteConfiguration } from 'hapi';
-import * as path from 'path';
+const Hapi = require('hapi');
+const Server = require('../lib/index');
+const path = require('path');
 
 const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
@@ -107,7 +106,7 @@ describe('CORS handling', () => {
 })
 
 describe('Server with default settings', () => {
-    let server: Server;
+    let server;
 
     beforeAll(async () => {
         const config = Object.assign({}, Server.defaults, {testMode: true, authEnabled: true, authSecret: defaultSecret});
@@ -156,10 +155,10 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an unauthenticated route', async () => {
-        const route: RouteConfiguration = {
+        const route = {
             method: 'GET',
             path: '/test',
-            handler: (req: Request, h: any) => {
+            handler: (req, h) => {
                 return 'test';
             },
             config: {
@@ -201,10 +200,10 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an authenticated route', async () => {
-        const route: RouteConfiguration = {
+        const route = {
             method: 'GET',
             path: '/test2',
-            handler: (req: Request, h: any) => {
+            handler: (req, h) => {
                 return 'test';
             }
         };
@@ -224,10 +223,10 @@ describe('Server with default settings', () => {
     it('should have working JWT authentication', async () => {
         const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1MTY1NzM1NjksImV4cCI6MTU0ODEwOTU2OSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.peUQ-SUbb_79fuCv_mq-9zs6jPG4577DSrGgsblwk6E'
 
-        const route: RouteConfiguration = {
+        const route = {
             method: 'GET',
             path: '/test3',
-            handler: (req: Request, h: any) => {
+            handler: (req, h) => {
                 return 'test';
             }
         };
@@ -249,11 +248,11 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering a plugin', async() => {
-        const register = async (server: any, options: any) => {
-            const route: RouteConfiguration = {
+        const register = async (server, options) => {
+            const route = {
                 method: 'GET',
                 path: '/test',
-                handler: (req: Request, h: any) => {
+                handler: (req, h) => {
                     return 'test';
                 },
                 config: {
@@ -290,10 +289,10 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an extension', async() => {
-        const route: RouteConfiguration = {
+        const route = {
             method: 'GET',
             path: '/extension-test',
-            handler: (req: Request, h: any) => {
+            handler: (req, h) => {
                 return req.app.testValue;
             },
             config: {
@@ -303,9 +302,9 @@ describe('Server with default settings', () => {
 
         server.registerAdditionalRoutes([route]);
 
-        const extension : ServerRequestExtConfigurationObjectWithRequest = {
+        const extension = {
             type: 'onRequest',
-            method: (request: Request, h: any) => {
+            method: (request, h) => {
                 request.app.testValue = 'onPostAuthTest';
                 return h.continue;
             }
@@ -326,7 +325,7 @@ describe('Server with default settings', () => {
 });
 
 describe('Server with default route disbaled', () => {
-    let server: Server;
+    let server;
 
     beforeAll(async () => {
         const config = Object.assign({}, Server.defaults, {testMode: true, defaultRoute: false, authSecret: defaultSecret});
@@ -348,7 +347,7 @@ describe('Server with default route disbaled', () => {
 });
 
 describe('Server with default cors disbaled', () => {
-    let server: Server;
+    let server;
 
     beforeAll(async () => {
         const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
