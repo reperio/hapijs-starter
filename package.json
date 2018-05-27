@@ -4,7 +4,6 @@
   "description": "",
   "main": "./lib/index.js",
   "scripts": {
-    "build": "tsc --allowJs false --declaration",
     "test": "jest --coverage"
   },
   "repository": {
@@ -18,11 +17,6 @@
   },
   "homepage": "https://github.com/reperio/hapijs-starter#readme",
   "dependencies": {
-    "@types/hapi": "17.0.12",
-    "@types/hapi-auth-jwt2": "^7.0.7",
-    "@types/jest": "^22.0.1",
-    "@types/node": "^9.3.0",
-    "@types/winston": "^2.3.7",
     "file-system": "^2.2.2",
     "hapi": "17.4.0",
     "hapi-auth-jwt2": "8.1.0",
@@ -34,22 +28,12 @@
   "devDependencies": {
     "coveralls": "^3.0.0",
     "eslint": "^4.16.0",
-    "jest": "^22.1.4",
-    "ts-jest": "^22.0.1",
-    "ts-loader": "^3.3.0",
-    "typescript": "^2.6.2",
-    "typescript-eslint-parser": "^11.0.0"
+    "jest": "^22.1.4"
   },
   "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
     "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
     "moduleFileExtensions": [
-      "ts",
-      "tsx",
       "js",
-      "jsx",
       "json",
       "node"
     ],
@@ -57,6 +41,5 @@
     "collectCoverage": true,
     "coverageDirectory": "coverage",
     "testEnvironment": "node"
-  },
-  "typings": "./lib/index.d.ts"
+  }
 }
