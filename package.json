@@ -28,7 +28,8 @@
     "hapi-auth-jwt2": "8.1.0",
     "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
     "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^1.7.2"
+    "winston-daily-rotate-file": "^1.7.2",
+    "hoek": "^5.0.3"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
