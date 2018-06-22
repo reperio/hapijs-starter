@@ -72,6 +72,10 @@ export class Server {
         this.server.ext(param1);
     }
 
+    strategy(name: string, schema: string, options?: any) {
+        this.server.auth.strategy(name, schema, options);
+    }
+
     async startServer() : Promise<void> {
         const logTransports = [];
         const traceTransports = [];

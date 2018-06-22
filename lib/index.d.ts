@@ -13,6 +13,7 @@ export declare class Server {
     registerRoutesFromDirectory(directory: string): void;
     registerAdditionalPlugin(plugin: any): Promise<any>;
     registerExtension(param1: ServerStartExtConfigurationObject | ServerStartExtConfigurationObject[] | ServerRequestExtConfigurationObjectWithRequest | ServerRequestExtConfigurationObjectWithRequest[]): void;
+    strategy(name: string, schema: string, options?: any): void;
     startServer(): Promise<void>;
     logger(): winston.LoggerInstance;
 }
