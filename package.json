@@ -1,5 +1,5 @@
 {
-  "name": "hapijs-starter",
+  "name": "@reperio/hapijs-starter",
   "version": "4.1.0",
   "description": "",
   "main": "./lib/index.js",
