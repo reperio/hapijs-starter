@@ -1,6 +1,8 @@
 const Hapi = require('hapi');
 const Server = require('../lib/index');
 const path = require('path');
+const winston = require('winston');
+require('winston-daily-rotate-file');
 
 const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
@@ -346,6 +348,8 @@ describe('Server with default route disbaled', () => {
     });
 });
 
+
+
 describe('Server with default cors disbaled', () => {
     let server;
 
@@ -365,5 +369,142 @@ describe('Server with default cors disbaled', () => {
         const response = await server.server.inject(options);
 
         expect(response.statusCode).toBe(404);
+    });
+});
+
+describe('Server logging', () => {
+    it('Default logger should have two transports', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+
+        const server = new Server(config);
+        await server.startServer();
+        expect(Object.keys(server.app.logger.transports).length).toBe(2);
+    });
+
+    it('Default trace logger should have one transport', async ()=> {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+
+        const server = new Server(config);
+        await server.startServer();
+        expect(Object.keys(server.app.traceLogger.transports).length).toBe(1);
+    });
+
+    it('Default activity logger should have one transport', async ()=> {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+
+        const server = new Server(config);
+        await server.startServer();
+        expect(Object.keys(server.app.activityLogger.transports).length).toBe(1);
+    });
+
+    it('Should be able to add additional transports to default logger', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalLoggerTransports: [
+            new (winston.transports.File)({
+                filename: './logs/extra-file-log.log',
+                datePattern: 'yyyy-MM-dd.',
+                createTree: true,
+                prepend: true,
+                level: 'debug',
+                humanReadableUnhandledException: true,
+                handleExceptions: true,
+                json: true
+            })]});
+
+        const server = new Server(config);
+        await server.startServer();
+        expect(Object.keys(server.app.logger.transports).length).toBe(3);
+    });
+
+    it('Should be able to add additional transports to default trace logger', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalTraceTransports: [
+            new (winston.transports.File)({
+                filename: './logs/extra-file-trace.log',
+                datePattern: 'yyyy-MM-dd.',
+                createTree: true,
+                prepend: true,
+                level: 'debug',
+                humanReadableUnhandledException: true,
+                handleExceptions: true,
+                json: true
+            })]});
+
+        const server = new Server(config);
+        await server.startServer();
+        expect(Object.keys(server.app.traceLogger.transports).length).toBe(2);
+    });
+
+    it('Should be able to add additional transports to default activity logger', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalActivityTransports: [
+            new (winston.transports.File)({
+                filename: './logs/extra-file-activity.log',
+                datePattern: 'yyyy-MM-dd.',
+                createTree: true,
+                prepend: true,
+                level: 'debug',
+                humanReadableUnhandledException: true,
+                handleExceptions: true,
+                json: true
+            })]});
+
+        const server = new Server(config);
+        await server.startServer();
+        expect(Object.keys(server.app.activityLogger.transports).length).toBe(2);
+    });
+
+    it('Should throw appropriate error if default log has no transports', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logDefaultFileTransport: false, logDefaultConsoleTransport: false});
+
+        const server = new Server(config);
+        try {
+            await server.startServer();
+        } catch (err) {
+            expect(err.message).toBe('Default logger has no transports');
+        }
+    });
+
+    it('Should throw appropriate error if trace log has no transports', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logDefaultTraceTransport: false});
+
+        const server = new Server(config);
+        try {
+            await server.startServer();
+        } catch (err) {
+            expect(err.message).toBe('Trace logger has no transports');
+        }
+    });
+
+    it('Should throw appropriate error if activity log has no transports', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logDefaultActivityTransport: false});
+
+        const server = new Server(config);
+        try {
+            await server.startServer();
+        } catch (err) {
+            expect(err.message).toBe('Activity logger has no transports');
+        }
+    });
+
+    it('Returns default logger', async ()=> {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const server = new Server(config);
+        await server.startServer();
+        const logger = server.logger();
+        expect(logger).not.toBe(null);
+    });
+
+    it('Returns default trace logger', async ()=> {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const server = new Server(config);
+        await server.startServer();
+        const logger = server.traceLogger();
+        expect(logger).not.toBe(null);
+    });
+
+    it('Returns default activity logger', async ()=> {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const server = new Server(config);
+        await server.startServer();
+        const logger = server.activityLogger();
+        expect(logger).not.toBe(null);
     });
 });
