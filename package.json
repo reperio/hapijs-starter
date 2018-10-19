@@ -23,7 +23,8 @@
     "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
     "winston": "^2.4.0",
     "winston-daily-rotate-file": "^1.7.2",
-    "hoek": "^5.0.3"
+    "hoek": "^5.0.3",
+    "catbox-memory": "^3.1.2"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
