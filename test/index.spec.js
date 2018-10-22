@@ -13,6 +13,29 @@ describe('Server initialization', () => {
 
         await expect(server.startServer()).rejects.toBeDefined();
     });
+
+    it('should initialize with additionalOptions if provided', async () => {
+        const mockHapiServer = jest.spyOn(Hapi, 'Server')
+            .mockImplementation(() => 'test server');
+        try {
+
+            const config = Object.assign({}, Server.defaults, {cors: true, additionalOptions: {routes: {additionalRouteOption1: 'testAdditionalRouteOptionValue1'}, additionalOption1: 'testAdditionalOptionValue1'}});
+            const server = new Server(config);
+
+            console.log(server.server);
+
+            expect(mockHapiServer)
+                .toHaveBeenCalledWith(expect.objectContaining({
+                    additionalOption1: 'testAdditionalOptionValue1',
+                    routes: expect.objectContaining({
+                        cors: true,
+                        additionalRouteOption1: 'testAdditionalRouteOptionValue1'
+                    })
+                }));
+        } finally {
+            mockHapiServer.mockRestore();
+        }
+    })
 });
 
 describe('CORS handling', () => {
