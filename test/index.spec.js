@@ -424,13 +424,7 @@ describe('Server logging', () => {
         const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalLoggerTransports: [
             new (winston.transports.File)({
                 filename: './logs/extra-file-log.log',
-                datePattern: 'yyyy-MM-dd.',
-                createTree: true,
-                prepend: true,
-                level: 'debug',
-                humanReadableUnhandledException: true,
-                handleExceptions: true,
-                json: true
+                level: 'debug'
             })]});
 
         const server = new Server(config);
@@ -442,13 +436,7 @@ describe('Server logging', () => {
         const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalTraceTransports: [
             new (winston.transports.File)({
                 filename: './logs/extra-file-trace.log',
-                datePattern: 'yyyy-MM-dd.',
-                createTree: true,
-                prepend: true,
-                level: 'debug',
-                humanReadableUnhandledException: true,
-                handleExceptions: true,
-                json: true
+                level: 'debug'
             })]});
 
         const server = new Server(config);
@@ -460,13 +448,7 @@ describe('Server logging', () => {
         const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalActivityTransports: [
             new (winston.transports.File)({
                 filename: './logs/extra-file-activity.log',
-                datePattern: 'yyyy-MM-dd.',
-                createTree: true,
-                prepend: true,
-                level: 'debug',
-                humanReadableUnhandledException: true,
-                handleExceptions: true,
-                json: true
+                level: 'debug'
             })]});
 
         const server = new Server(config);

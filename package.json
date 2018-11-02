@@ -17,14 +17,14 @@
   },
   "homepage": "https://github.com/reperio/hapijs-starter#readme",
   "dependencies": {
+    "catbox-memory": "^3.1.2",
     "file-system": "^2.2.2",
     "hapi": "17.4.0",
     "hapi-auth-jwt2": "8.1.0",
     "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
-    "winston": "^2.4.0",
-    "winston-daily-rotate-file": "^1.7.2",
     "hoek": "^5.0.3",
-    "catbox-memory": "^3.1.2"
+    "winston": "^3.1.0",
+    "winston-daily-rotate-file": "^3.4.1"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
