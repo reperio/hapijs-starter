@@ -512,4 +512,20 @@ describe('Server logging', () => {
         const logger = server.activityLogger();
         expect(logger).not.toBe(null);
     });
+
+    it('Should use the proper default log level', async () => {
+        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const server = new Server(config);
+        await server.startServer();
+        const logger = server.logger();
+        expect(logger.transports[0].level).toBe('debug');
+    });
+
+    it('Should use the proper custom log level', async () => {
+        const config = Object.assign({logLevel: 'warn'}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const server = new Server(config);
+        await server.startServer();
+        const logger = server.logger();
+        expect(logger.transports[0].level).toBe('warn');
+    });
 });
