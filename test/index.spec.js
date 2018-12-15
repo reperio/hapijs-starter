@@ -529,3 +529,19 @@ describe('Server logging', () => {
         expect(logger.transports[0].level).toBe('warn');
     });
 });
+
+describe('cache handling', () => {
+    it('Should use cache override when provided', () => {
+        const config = Object.assign({}, Server.defaults, {cache: {engine: require('catbox-memory'), name: 'test'}});
+        const server = new Server(config);
+
+        expect(server.config.cache.name).toEqual('test');
+    });
+
+    it('Should default to catbox-memory when no cache is provided', () => {
+        const config = Object.assign({}, Server.defaults);
+        const server = new Server(config);
+
+        expect(server.config.cache.name).toBe('memory');
+    })
+})
