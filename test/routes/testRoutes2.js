@@ -1,8 +1,12 @@
+/*
+ Do not delete, these routes are referenced in index.spec.ts
+ */
+
 const routes = [
     {
         method: 'GET',
         path: '/extfile/test3',
-        config: {auth: false},
+        options: {auth: false},
         handler: async (req, h) => {
             return 'This is a third test.';
         }
@@ -10,7 +14,7 @@ const routes = [
     {
         method: 'GET',
         path: '/extfile/test4',
-        config: {auth: false},
+        options: {auth: false},
         handler: async (req, h) => {
             return 'This is a fourth test.';
         }

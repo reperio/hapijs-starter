@@ -1,48 +1,59 @@
-const Hapi = require('hapi');
-const Server = require('../lib/index');
-const path = require('path');
-const winston = require('winston');
-require('winston-daily-rotate-file');
+import Hapi, {ServerExtEventsRequestObject, ServerRoute} from 'hapi';
+import path from 'path';
+import winston from 'winston';
+
+import {Server} from '../src';
 
 const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
 describe('Server initialization', () => {
     it('should throw exception if auth.secret is not provided', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, authEnabled:true});
+        const config = {authEnabled: true};
         const server = new Server(config);
 
-        await expect(server.startServer()).rejects.toBeDefined();
+        await expect(server.configure()).rejects.toBeDefined();
     });
 
     it('should initialize with additionalOptions if provided', async () => {
-        const mockHapiServer = jest.spyOn(Hapi, 'Server')
-            .mockImplementation(() => 'test server');
+        const mockHapiServer = jest.spyOn(Hapi, 'Server');
         try {
+            const config = {
+                cors: true,
+                hapiServerOptions: {
+                    routes: {
+                        auth: 'test'
+                    }
+                }
+            };
 
-            const config = Object.assign({}, Server.defaults, {cors: true, additionalOptions: {routes: {additionalRouteOption1: 'testAdditionalRouteOptionValue1'}, additionalOption1: 'testAdditionalOptionValue1'}});
             const server = new Server(config);
 
-            console.log(server.server);
+            // console.log(server.server);
 
             expect(mockHapiServer)
                 .toHaveBeenCalledWith(expect.objectContaining({
-                    additionalOption1: 'testAdditionalOptionValue1',
                     routes: expect.objectContaining({
                         cors: true,
-                        additionalRouteOption1: 'testAdditionalRouteOptionValue1'
+                        auth: 'test'
                     })
                 }));
         } finally {
             mockHapiServer.mockRestore();
         }
-    })
+    });
+
+    it('should start Hapi server when startServer called', async () => {
+        const server = new Server();
+        const mockHapiServerStart = jest.spyOn(server.server, 'start').mockImplementation(() => {});
+        await server.startServer();
+        expect(mockHapiServerStart).toHaveBeenCalled();
+    });
 });
 
 describe('CORS handling', () => {
     it('should respond to options requests', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true});
-        let server = new Server(config);
-        await server.startServer();
+        const server = new Server();
+        await server.configure();
 
         const options = {
             method: 'OPTIONS',
@@ -58,9 +69,8 @@ describe('CORS handling', () => {
     });
 
     it('should respond to options requests when Origin header is not present', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true});
-        let server = new Server(config);
-        await server.startServer();
+        const server = new Server();
+        await server.configure();
 
         const options = {
             method: 'OPTIONS',
@@ -73,9 +83,9 @@ describe('CORS handling', () => {
     });
 
     it('should include access-control-allow-origin header when given origin to use', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, corsOrigins: ['https://test.com']});
-        let server = new Server(config);
-        await server.startServer();
+        const config = {corsOrigins: ['https://test.com']};
+        const server = new Server(config);
+        await server.configure();
 
         const options = {
             method: 'OPTIONS',
@@ -92,9 +102,9 @@ describe('CORS handling', () => {
     });
 
     it('should include access-control-allow-origin header when given * as the origin', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, corsOrigins: ['*']});
-        let server = new Server(config);
-        await server.startServer();
+        const config = {corsOrigins: ['*']};
+        const server = new Server(config);
+        await server.configure();
 
         const options = {
             method: 'OPTIONS',
@@ -111,9 +121,8 @@ describe('CORS handling', () => {
     });
 
     it('should NOT include access-control-allow-origin header when NOT given origin to use', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true});
-        let server = new Server(config);
-        await server.startServer();
+        const server = new Server();
+        await server.configure();
 
         const options = {
             method: 'OPTIONS',
@@ -126,17 +135,17 @@ describe('CORS handling', () => {
         const response = await server.server.inject(options);
 
         expect(response.statusCode).toBe(200);
-        expect(response.headers['access-control-allow-origin']).toBe(undefined);
+        expect(response.headers['access-control-allow-origin']).toBeUndefined();
     });
-})
+});
 
 describe('Server with default settings', () => {
-    let server;
+    let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, authEnabled: true, authSecret: defaultSecret});
+        const config = {authEnabled: true, authSecret: defaultSecret};
         server = new Server(config);
-        await server.startServer();
+        await server.configure();
     });
 
     it('should export server', () => {
@@ -146,8 +155,6 @@ describe('Server with default settings', () => {
     it('should expose server', () => {
         expect(server.server).toBeDefined();
     });
-
-    
 
     it('should respond to get request on the root route with "hello"', async () => {
         const options = {
@@ -180,18 +187,18 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an unauthenticated route', async () => {
-        const route = {
+        const route: ServerRoute = {
             method: 'GET',
             path: '/test',
             handler: (req, h) => {
                 return 'test';
             },
-            config: {
+            options: {
                 auth: false
             }
         };
 
-        server.registerAdditionalRoutes([route]);
+        server.server.route([route]);
 
         const options = {
             method: 'GET',
@@ -225,7 +232,7 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an authenticated route', async () => {
-        const route = {
+        const route: ServerRoute = {
             method: 'GET',
             path: '/test2',
             handler: (req, h) => {
@@ -233,7 +240,7 @@ describe('Server with default settings', () => {
             }
         };
 
-        server.registerAdditionalRoutes([route])
+        server.server.route([route]);
 
         const options = {
             method: 'GET',
@@ -246,9 +253,10 @@ describe('Server with default settings', () => {
     });
 
     it('should have working JWT authentication', async () => {
-        const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1MTY1NzM1NjksImV4cCI6MTU0ODEwOTU2OSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.peUQ-SUbb_79fuCv_mq-9zs6jPG4577DSrGgsblwk6E'
+        // tslint:disable-next-line:max-line-length
+        const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1MTY1NzM1NjksImV4cCI6MTU0ODEwOTU2OSwiYXVkIjoid3d3LmV4YW1wbGUuY29tIiwic3ViIjoidGVzdEBleGFtcGxlLmNvbSIsIkdpdmVuTmFtZSI6IkpvaG5ueSIsIlN1cm5hbWUiOiJSb2NrZXQiLCJFbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.peUQ-SUbb_79fuCv_mq-9zs6jPG4577DSrGgsblwk6E';
 
-        const route = {
+        const route: ServerRoute = {
             method: 'GET',
             path: '/test3',
             handler: (req, h) => {
@@ -256,7 +264,7 @@ describe('Server with default settings', () => {
             }
         };
 
-        server.registerAdditionalRoutes([route])
+        server.server.route([route]);
 
         const options = {
             method: 'GET',
@@ -267,40 +275,39 @@ describe('Server with default settings', () => {
         };
 
         const response = await server.server.inject(options);
-        //console.log(response);
         expect(response.statusCode).toBe(200);
-        
+
     });
 
-    it('should allow registering a plugin', async() => {
-        const register = async (server, options) => {
-            const route = {
+    it('should allow registering a plugin', async () => {
+        const register = async (innerServer: Hapi.Server) => {
+            const route: ServerRoute = {
                 method: 'GET',
                 path: '/test',
                 handler: (req, h) => {
                     return 'test';
                 },
-                config: {
+                options: {
                     auth: false
                 }
             };
 
-            server.route([route]);
-        }
+            innerServer.route([route]);
+        };
 
         const plugin = {
-            register, name: 'Test',
+            register, name: 'Test'
         };
 
         const pluginPackage = {
-            plugin: plugin,
+            plugin,
             options: {},
             routes: {
                 prefix: '/api'
             }
         };
 
-        await server.registerAdditionalPlugin(pluginPackage);
+        await server.server.register(pluginPackage);
 
         const options = {
             method: 'GET',
@@ -313,29 +320,29 @@ describe('Server with default settings', () => {
         expect(response.payload).toBe('test');
     });
 
-    it('should allow registering an extension', async() => {
-        const route = {
+    it('should allow registering an extension', async () => {
+        const route: ServerRoute = {
             method: 'GET',
             path: '/extension-test',
             handler: (req, h) => {
-                return req.app.testValue;
+                return (req.app as any).testValue;
             },
-            config: {
+            options: {
                 auth: false
             }
         };
 
-        server.registerAdditionalRoutes([route]);
+        server.server.route([route]);
 
-        const extension = {
+        const extension: ServerExtEventsRequestObject = {
             type: 'onRequest',
             method: (request, h) => {
-                request.app.testValue = 'onPostAuthTest';
+                (request.app as any).testValue = 'onPostAuthTest';
                 return h.continue;
             }
         };
 
-        await server.registerExtension(extension);
+        await server.server.ext(extension);
 
         const options = {
             method: 'GET',
@@ -350,14 +357,14 @@ describe('Server with default settings', () => {
 });
 
 describe('Server with default route disbaled', () => {
-    let server;
+    let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, defaultRoute: false, authSecret: defaultSecret});
+        const config = {defaultRoute: false, authSecret: defaultSecret};
 
         server = new Server(config);
-        await server.startServer();
-    })
+        await server.configure();
+    });
 
     it('should respond to get request on the root route with HTTP 404', async () => {
         const options = {
@@ -371,17 +378,15 @@ describe('Server with default route disbaled', () => {
     });
 });
 
-
-
 describe('Server with default cors disbaled', () => {
-    let server;
+    let server: Server;
 
     beforeAll(async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const config = {cors: false, authSecret: defaultSecret};
 
         server = new Server(config);
-        await server.startServer();
-    })
+        await server.configure();
+    });
 
     it('should respond to default options requests with 404', async () => {
         const options = {
@@ -397,151 +402,152 @@ describe('Server with default cors disbaled', () => {
 
 describe('Server logging', () => {
     it('Default logger should have two transports', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const config = {cors: false, authSecret: defaultSecret};
 
         const server = new Server(config);
-        await server.startServer();
+        await server.configure();
         expect(Object.keys(server.app.logger.transports).length).toBe(2);
     });
 
-    it('Default trace logger should have one transport', async ()=> {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+    it('Default trace logger should have one transport', async () => {
+        const config = {cors: false, authSecret: defaultSecret};
 
         const server = new Server(config);
-        await server.startServer();
+        await server.configure();
         expect(Object.keys(server.app.traceLogger.transports).length).toBe(1);
     });
 
-    it('Default activity logger should have one transport', async ()=> {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+    it('Default activity logger should have one transport', async () => {
+        const config = {cors: false, authSecret: defaultSecret};
 
         const server = new Server(config);
-        await server.startServer();
+        await server.configure();
         expect(Object.keys(server.app.activityLogger.transports).length).toBe(1);
     });
 
     it('Should be able to add additional transports to default logger', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalLoggerTransports: [
+        const config = {cors: false, authSecret: defaultSecret, logAddtionalLoggerTransports: [
             new (winston.transports.File)({
                 filename: './logs/extra-file-log.log',
                 level: 'debug'
-            })]});
+            })]};
 
         const server = new Server(config);
-        await server.startServer();
+        await server.configure();
         expect(Object.keys(server.app.logger.transports).length).toBe(3);
     });
 
     it('Should be able to add additional transports to default trace logger', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalTraceTransports: [
+        const config = {cors: false, authSecret: defaultSecret, logAddtionalTraceTransports: [
             new (winston.transports.File)({
                 filename: './logs/extra-file-trace.log',
                 level: 'debug'
-            })]});
+            })]};
 
         const server = new Server(config);
-        await server.startServer();
+        await server.configure();
         expect(Object.keys(server.app.traceLogger.transports).length).toBe(2);
     });
 
     it('Should be able to add additional transports to default activity logger', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logAddtionalActivityTransports: [
+        const config = {cors: false, authSecret: defaultSecret, logAddtionalActivityTransports: [
             new (winston.transports.File)({
                 filename: './logs/extra-file-activity.log',
                 level: 'debug'
-            })]});
+            })]};
 
         const server = new Server(config);
-        await server.startServer();
+        await server.configure();
         expect(Object.keys(server.app.activityLogger.transports).length).toBe(2);
     });
 
     it('Should throw appropriate error if default log has no transports', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logDefaultFileTransport: false, logDefaultConsoleTransport: false});
+        const config = {
+            cors: false,
+            authSecret: defaultSecret,
+            logDefaultFileTransport: false,
+            logDefaultConsoleTransport: false
+        };
 
-        const server = new Server(config);
         try {
-            await server.startServer();
+            const server = new Server(config);
         } catch (err) {
             expect(err.message).toBe('Default logger has no transports');
         }
     });
 
     it('Should throw appropriate error if trace log has no transports', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logDefaultTraceTransport: false});
+        const config = {cors: false, authSecret: defaultSecret, logDefaultTraceTransport: false};
 
-        const server = new Server(config);
         try {
-            await server.startServer();
+            const server = new Server(config);
         } catch (err) {
             expect(err.message).toBe('Trace logger has no transports');
         }
     });
 
     it('Should throw appropriate error if activity log has no transports', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret, logDefaultActivityTransport: false});
+        const config = {cors: false, authSecret: defaultSecret, logDefaultActivityTransport: false};
 
-        const server = new Server(config);
         try {
-            await server.startServer();
+            const server = new Server(config);
         } catch (err) {
             expect(err.message).toBe('Activity logger has no transports');
         }
     });
 
-    it('Returns default logger', async ()=> {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+    it('Returns default logger', async () => {
+        const config = {cors: false, authSecret: defaultSecret};
         const server = new Server(config);
-        await server.startServer();
-        const logger = server.logger();
+        await server.configure();
+        const logger = server.appLogger;
         expect(logger).not.toBe(null);
     });
 
-    it('Returns default trace logger', async ()=> {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+    it('Returns default trace logger', async () => {
+        const config = {cors: false, authSecret: defaultSecret};
         const server = new Server(config);
-        await server.startServer();
-        const logger = server.traceLogger();
+        await server.configure();
+        const logger = server.appTraceLogger;
         expect(logger).not.toBe(null);
     });
 
-    it('Returns default activity logger', async ()=> {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+    it('Returns default activity logger', async () => {
+        const config = {cors: false, authSecret: defaultSecret};
         const server = new Server(config);
-        await server.startServer();
-        const logger = server.activityLogger();
+        await server.configure();
+        const logger = server.appActivityLogger;
         expect(logger).not.toBe(null);
     });
 
     it('Should use the proper default log level', async () => {
-        const config = Object.assign({}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const config = {cors: false, authSecret: defaultSecret};
         const server = new Server(config);
-        await server.startServer();
-        const logger = server.logger();
+        await server.configure();
+        const logger = server.appLogger;
         expect(logger.transports[0].level).toBe('debug');
     });
 
     it('Should use the proper custom log level', async () => {
-        const config = Object.assign({logLevel: 'warn'}, Server.defaults, {testMode: true, cors: false, authSecret: defaultSecret});
+        const config = {cors: false, authSecret: defaultSecret, logLevel: 'warn'};
         const server = new Server(config);
-        await server.startServer();
-        const logger = server.logger();
+        await server.configure();
+        const logger = server.appLogger;
         expect(logger.transports[0].level).toBe('warn');
     });
 });
 
 describe('cache handling', () => {
     it('Should use cache override when provided', () => {
-        const config = Object.assign({}, Server.defaults, {cache: {engine: require('catbox-memory'), name: 'test'}});
+        const config = {cache: {engine: require('catbox-memory'), name: 'test'}};
         const server = new Server(config);
 
-        expect(server.config.cache.name).toEqual('test');
+        expect((server.config.cache as any).name).toEqual('test');
     });
 
     it('Should default to catbox-memory when no cache is provided', () => {
-        const config = Object.assign({}, Server.defaults);
-        const server = new Server(config);
+        const server = new Server();
 
-        expect(server.config.cache.name).toBe('memory');
-    })
-})
+        expect((server.config.cache as any).name).toBe('memory');
+    });
+});
