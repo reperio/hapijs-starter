@@ -13,38 +13,22 @@ import {IServerApplicationState} from './models/serverApplicationState';
 import {defaultConfig} from './defaultConfig';
 
 export class Server {
-    public readonly config: IHapijsStarterServerConfig;
-    public readonly server: Hapi.Server;
-    public readonly app: IServerApplicationState;
-    public readonly appLogger: Logger;
-    public readonly appTraceLogger: Logger;
-    public readonly appActivityLogger: Logger;
+    private _config: IHapijsStarterServerConfig;
+    private _server: Hapi.Server | null = null;
+    private _app: IServerApplicationState | null = null;
+    private _appLogger: Logger | null = null;
+    private _appTraceLogger: Logger | null = null;
+    private _appActivityLogger: Logger | null = null;
+
+    public get config() { return this._config; }
+    public get server() { return this._server as Hapi.Server; }
+    public get app() { return this._app as IServerApplicationState; }
+    public get appLogger() { return this._appLogger as Logger; }
+    public get appTraceLogger() { return this._appTraceLogger as Logger; }
+    public get appActivityLogger() { return this._appActivityLogger as Logger; }
 
     constructor(config?: Partial<IHapijsStarterServerConfig>) {
-        this.config = {...defaultConfig, ...(config || {})};
-
-        const {routes: additionalRouteOptions, ...additionalOptionsWithoutRouteOptions} =
-            this.config.hapiServerOptions || {} as Partial<ServerOptions>;
-
-        const hapiConfig: ServerOptions = {
-            cache: this.config.cache,
-            host: this.config.host,
-            port: this.config.port,
-            routes: {
-                cors: this.config.cors,
-                ...additionalRouteOptions
-            },
-            ...additionalOptionsWithoutRouteOptions
-        };
-
-        const {appLogger, appTraceLogger, appActivityLogger} = this.getLoggers();
-
-        this.server = new Hapi.Server(hapiConfig);
-        this.app = this.server.app;
-
-        this.app.logger = this.appLogger = appLogger;
-        this.app.traceLogger = this.appTraceLogger = appTraceLogger;
-        this.app.activityLogger = this.appActivityLogger = appActivityLogger;
+        this._config = {...defaultConfig, ...(config || {})};
     }
 
     public registerRoutesFromDirectory(directory: string) {
@@ -60,6 +44,9 @@ export class Server {
     }
 
     public async configure() {
+        this.configureHapiServer();
+        this.configureLoggers();
+
         if (this.config.authEnabled && !this.config.authSecret) {
             throw new Error('JWT Auth secret must be provided if auth is enabled. ' +
                 'Set config.authEnabled = false or provide a value for config.authSecret.');
@@ -83,6 +70,8 @@ export class Server {
         if (this.config.statusMonitor) {
             await this.configureStatusMonitor();
         }
+
+        return this;
     }
 
     public async startServer() {
@@ -90,7 +79,26 @@ export class Server {
         this.appLogger.info(`Server running at: ${this.server.info.uri}`);
     }
 
-    private getLoggers() {
+    private configureHapiServer() {
+        const {routes: additionalRouteOptions, ...additionalOptionsWithoutRouteOptions} =
+        this.config.hapiServerOptions || {} as Partial<ServerOptions>;
+
+        const hapiConfig: ServerOptions = {
+            cache: this.config.cache,
+            host: this.config.host,
+            port: this.config.port,
+            routes: {
+                cors: this.config.cors,
+                ...additionalRouteOptions
+            },
+            ...additionalOptionsWithoutRouteOptions
+        };
+
+        this._server = new Hapi.Server(hapiConfig);
+        this._app = this._server.app;
+    }
+
+    private configureLoggers() {
         const logTransports = [ ...(this.config.logAddtionalLoggerTransports || []) ];
         const traceTransports = [ ...(this.config.logAddtionalTraceTransports || []) ];
         const activityTransports = [ ...(this.config.logAddtionalActivityTransports || []) ];
@@ -172,7 +180,9 @@ export class Server {
             transports: activityTransports
         });
 
-        return {appLogger, appTraceLogger, appActivityLogger};
+        this.app.logger = this._appLogger = appLogger;
+        this.app.traceLogger = this._appTraceLogger = appTraceLogger;
+        this.app.activityLogger = this._appActivityLogger = appActivityLogger;
     }
 
     private configureDefaultRoute() {

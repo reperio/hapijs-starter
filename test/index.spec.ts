@@ -27,6 +27,7 @@ describe('Server initialization', () => {
             };
 
             const server = new Server(config);
+            await server.configure();
 
             // console.log(server.server);
 
@@ -44,7 +45,8 @@ describe('Server initialization', () => {
 
     it('should start Hapi server when startServer called', async () => {
         const server = new Server();
-        const mockHapiServerStart = jest.spyOn(server.server, 'start').mockImplementation(() => {});
+        await server.configure();
+        const mockHapiServerStart = jest.spyOn(server.server, 'start').mockImplementation();
         await server.startServer();
         expect(mockHapiServerStart).toHaveBeenCalled();
     });
