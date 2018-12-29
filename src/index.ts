@@ -1,9 +1,7 @@
 'use strict';
 
-import {EnginePrototype} from 'catbox';
 import fs from 'fs';
-import Hapi, {Request, ResponseToolkit, ServerOptions, ServerOptionsCache, ServerRoute} from 'hapi';
-import hapiAuthJwt2, {ValidationResult} from 'hapi-auth-jwt2';
+import Hapi, {ServerOptions} from 'hapi';
 import path from 'path';
 import winston, {Logger} from 'winston';
 import WinstonDailyRotateFile from 'winston-daily-rotate-file';
@@ -38,8 +36,15 @@ export class Server {
             },
             ...additionalOptionsWithoutRouteOptions
         };
+
+        const {appLogger, appTraceLogger, appActivityLogger} = this.getLoggers();
+
         this.server = new Hapi.Server(hapiConfig);
         this.app = this.server.app;
+
+        this.app.logger = this.appLogger = appLogger;
+        this.app.traceLogger = this.appTraceLogger = appTraceLogger;
+        this.app.activityLogger = this.appActivityLogger = appActivityLogger;
     }
 
     public registerRoutesFromDirectory(directory: string) {
@@ -54,15 +59,41 @@ export class Server {
         return this;
     }
 
-    public async startServer() {
-        const logTransports = [ ...(this.config.logAddtionalLoggerTransports || []) ];
-        const traceTransports = [ ...(this.config.logAddtionalTraceTransports || []) ];
-        const activityTransports = [ ...(this.config.logAddtionalActivityTransports || []) ];
-
+    public async configure() {
         if (this.config.authEnabled && !this.config.authSecret) {
             throw new Error('JWT Auth secret must be provided if auth is enabled. ' +
                 'Set config.authEnabled = false or provide a value for config.authSecret.');
         }
+
+        if (this.config.defaultRoute) {
+            this.configureDefaultRoute();
+        }
+        if (this.config.cors) {
+            this.configureCors();
+        }
+
+        if (this.config.logAutoTraceLogging) {
+            this.configureAutoTraceLogging();
+        }
+
+        if (this.config.authEnabled) {
+            await this.configureAuth();
+        }
+
+        if (this.config.statusMonitor) {
+            await this.configureStatusMonitor();
+        }
+    }
+
+    public async startServer() {
+        await this.server.start();
+        this.appLogger.info(`Server running at: ${this.server.info.uri}`);
+    }
+
+    private getLoggers() {
+        const logTransports = [ ...(this.config.logAddtionalLoggerTransports || []) ];
+        const traceTransports = [ ...(this.config.logAddtionalTraceTransports || []) ];
+        const activityTransports = [ ...(this.config.logAddtionalActivityTransports || []) ];
 
         if (this.config.logDefaultFileTransport) {
             const logTransport = new WinstonDailyRotateFile({
@@ -117,124 +148,105 @@ export class Server {
             activityTransports.push(logTransport);
         }
 
-        if (logTransports.length > 0) {
-            this.appLogger = winston.createLogger({
-                transports: logTransports
-            });
-        } else {
+        if (logTransports.length === 0) {
             throw new Error('Default logger has no transports');
         }
 
-        if (traceTransports.length > 0) {
-            this.appTraceLogger = winston.createLogger({
-                transports: traceTransports
-            });
-        } else {
+        if (traceTransports.length === 0) {
             throw new Error('Trace logger has no transports');
         }
 
-        if (activityTransports.length > 0) {
-            this.appActivityLogger = winston.createLogger({
-                transports: activityTransports
-            });
-        } else {
+        if (activityTransports.length === 0) {
             throw new Error('Activity logger has no transports');
         }
 
-        this.app.logger = this.appLogger;
-        this.app.traceLogger = this.appTraceLogger;
-        this.app.activityLogger = this.appActivityLogger;
+        const appLogger = winston.createLogger({
+            transports: logTransports
+        });
 
-        if (this.config.defaultRoute) {
-            this.server.route({
-                method: 'GET',
-                path: '/',
-                handler: (req, h) => {
-                    return 'hello';
-                },
-                options: {
-                    auth: false
+        const appTraceLogger = winston.createLogger({
+            transports: traceTransports
+        });
+
+        const appActivityLogger = winston.createLogger({
+            transports: activityTransports
+        });
+
+        return {appLogger, appTraceLogger, appActivityLogger};
+    }
+
+    private configureDefaultRoute() {
+        this.server.route({
+            method: 'GET',
+            path: '/',
+            handler: () => {
+                return 'hello';
+            },
+            options: {
+                auth: false
+            }
+        });
+    }
+
+    private configureCors() {
+        this.server.route({
+            method: 'OPTIONS',
+            path: '/{p*}',
+            handler: (req, h) => {
+                const response = h.response('success');
+
+                const origin = req.headers.origin;
+                const originMatch = this.config.corsOrigins.indexOf(origin) > -1
+                    || this.config.corsOrigins.indexOf('*') > -1;
+
+                if (origin && originMatch) {
+                    response.header('Access-Control-Allow-Origin', origin);
                 }
-            });
-        }
 
-        if (this.config.cors) {
-            this.server.route({
-                method: 'OPTIONS',
-                path: '/{p*}',
-                handler: (req, h) => {
-                    const response = h.response('success');
+                response.type('text/plain');
+                response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+                response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+                return response;
+            },
+            options: {
+                auth: false,
+                cors: false
+            }
+        });
+    }
 
-                    const origin = req.headers.origin;
-                    const originMatch = this.config.corsOrigins.indexOf(origin) > -1
-                        || this.config.corsOrigins.indexOf('*') > -1;
+    private configureAutoTraceLogging() {
+        this.server.ext({
+            type: 'onPreResponse',
+            method: async (req, h) => {
+                req.server.app.traceLogger.debug(`${req.path} ${JSON.stringify(req.headers)}`);
 
-                    if (origin && originMatch) {
-                        response.header('Access-Control-Allow-Origin', origin);
-                    }
+                return h.continue;
+            }
+        });
+    }
 
-                    response.type('text/plain');
-                    response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-                    response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-                    return response;
-                },
-                options: {
-                    auth: false,
-                    cors: false
-                }
-            });
-        }
+    private async configureAuth() {
+        await this.server.register(require('hapi-auth-jwt2'));
 
-        if (this.config.logAutoTraceLogging) {
-            this.server.ext({
-                type: 'onPreResponse',
-                method: async (req, h) => {
-                    req.server.app.traceLogger.debug(`${req.path} ${JSON.stringify(req.headers)}`);
-
-                    return h.continue;
-                }
-            });
-        }
-
-        if (this.config.authEnabled) {
-            await this.server.register(hapiAuthJwt2);
-
-            this.server.auth.strategy('jwt', 'jwt',
+        this.server.auth.strategy('jwt', 'jwt',
             {
                 key: this.config.authSecret,
                 validate: this.config.authValidateFunc,
                 verifyOptions: { algorithms: [ 'HS256' ] }
             });
 
-            this.server.auth.default('jwt');
-        }
+        this.server.auth.default('jwt');
+    }
 
-        if (this.config.statusMonitor) {
-            await this.server.register({
-                plugin: require('hapijs-status-monitor'),
-                options: {
-                    routeConfig: {
-                        auth: false
-                    }
+    private async configureStatusMonitor() {
+        await this.server.register({
+            plugin: require('hapijs-status-monitor'),
+            options: {
+                routeConfig: {
+                    auth: false
                 }
-            });
-        }
-
-        if (!this.config.testMode) {
-            await this.server.start();
-            this.logger().info(`Server running at: ${this.server.info.uri}`);
-        }
-    }
-
-    public logger() {
-        return this.appLogger;
-    }
-
-    public traceLogger() {
-        return this.appTraceLogger;
-    }
-
-    public activityLogger() {
-        return this.appActivityLogger;
+            }
+        });
     }
 }
