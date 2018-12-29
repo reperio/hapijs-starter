@@ -6,10 +6,10 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest --coverage",
-    "build": "rm -rf ./dist && webpack --mode=production",
+    "build": "yarn test && yarn lint && yarn clean && webpack --mode=production",
     "clean": "rm -rf ./dist",
     "lint": "tslint --project tsconfig.json",
-    "deploy": "yarn build && yarn lint && yarn publish --access public"
+    "deploy": "yarn build && yarn publish --access public"
   },
   "repository": {
     "type": "git",
