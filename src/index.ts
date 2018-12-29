@@ -9,89 +9,22 @@ import winston, {Logger} from 'winston';
 import WinstonDailyRotateFile from 'winston-daily-rotate-file';
 import Transport from 'winston-transport';
 
+import {IHapijsStarterServerConfig} from './models/ihapijsStarterServerConfig';
 import {IServerApplicationState} from './models/serverApplicationState';
 
-interface IHapijsStarterServerConfig {
-    host: string;
-    port: number;
-    cors: boolean;
-    corsOrigins: string[];
-    defaultRoute: boolean;
-    statusMonitor: boolean;
-    authEnabled: boolean;
-    authSecret: string | null;
-    logDirectory: string;
-    logJson: boolean;
-    logLevel: string;
-
-    logDefaultActivityTransport: boolean;
-    logDefaultConsoleTransport: boolean;
-    logDefaultFileTransport: boolean;
-    logDefaultTraceTransport: boolean;
-
-    logAutoTraceLogging: boolean;
-
-    logAddtionalActivityTransports: Transport[];
-    logAddtionalLoggerTransports: Transport[];
-    logAddtionalTraceTransports: Transport[];
-    testMode: boolean;
-
-    cache: EnginePrototype<any> | ServerOptionsCache | ServerOptionsCache[];
-
-    hapiServerOptions?: Partial<ServerOptions>;
-
-    authValidateFunc(decoded: any, request: Request, tk: ResponseToolkit): ValidationResult | Promise<ValidationResult>;
-}
+import {defaultConfig} from './defaultConfig';
 
 export class Server {
-    public config: IHapijsStarterServerConfig;
-    public server: Hapi.Server;
-    public app: IServerApplicationState;
-    public appLogger!: Logger;
-    public appTraceLogger!: Logger;
-    public appActivityLogger!: Logger;
+    public readonly config: IHapijsStarterServerConfig;
+    public readonly server: Hapi.Server;
+    public readonly app: IServerApplicationState;
+    public readonly appLogger: Logger;
+    public readonly appTraceLogger: Logger;
+    public readonly appActivityLogger: Logger;
 
-    constructor(options: Partial<IHapijsStarterServerConfig>) {
-        const defaults: IHapijsStarterServerConfig = {
-            host: '0.0.0.0',
-            port: 3000,
+    constructor(config?: Partial<IHapijsStarterServerConfig>) {
+        this.config = {...defaultConfig, ...(config || {})};
 
-            cors: true,
-            corsOrigins: [],
-            defaultRoute: true,
-            statusMonitor: true,
-
-            authEnabled: false,
-            authSecret: null,
-
-            logDirectory: './logs',
-            logJson: true,
-            logLevel: 'debug',
-
-            logDefaultActivityTransport: true,
-            logDefaultConsoleTransport: true,
-            logDefaultFileTransport: true,
-            logDefaultTraceTransport: true,
-
-            logAutoTraceLogging: true,
-
-            logAddtionalActivityTransports: [],
-            logAddtionalLoggerTransports: [],
-            logAddtionalTraceTransports: [],
-
-            cache: {
-                engine: require('catbox-memory'),
-                name: 'memory'
-            },
-
-            testMode: false,
-
-            authValidateFunc: () => {
-                return { isValid: true };
-            }
-        };
-
-        this.config = {...defaults, ...options};
         const {routes: additionalRouteOptions, ...additionalOptionsWithoutRouteOptions} =
             this.config.hapiServerOptions || {} as Partial<ServerOptions>;
 
