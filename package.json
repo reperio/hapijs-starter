@@ -1,6 +1,6 @@
 {
   "name": "@reperio/hapijs-starter",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -62,5 +62,8 @@
     "collectCoverage": true,
     "coverageDirectory": "coverage",
     "testEnvironment": "node"
-  }
+  },
+  "files": [
+    "dist/**/*"
+  ]
 }
