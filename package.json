@@ -1,6 +1,6 @@
 {
   "name": "@reperio/hapijs-starter",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,6 +22,8 @@
   },
   "homepage": "https://github.com/reperio/hapijs-starter#readme",
   "dependencies": {
+    "@types/hapi-auth-jwt2": "^8.0.2",
+    "@types/jest": "^23.3.10",
     "catbox-memory": "^4.0.1",
     "file-system": "^2.2.2",
     "hapi": "^17.8.1",
@@ -32,8 +34,6 @@
     "winston-daily-rotate-file": "^3.4.1"
   },
   "devDependencies": {
-    "@types/hapi-auth-jwt2": "^8.0.2",
-    "@types/jest": "^23.3.10",
     "coveralls": "^3.0.0",
     "jest": "^22.1.4",
     "ts-jest": "^23.10.5",
