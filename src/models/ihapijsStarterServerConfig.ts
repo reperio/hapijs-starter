@@ -2,8 +2,11 @@ import {EnginePrototype} from 'catbox';
 import {Request, ResponseToolkit, ServerOptions, ServerOptionsCache} from 'hapi';
 import {ValidationResult} from 'hapi-auth-jwt2';
 import Transport from 'winston-transport';
+import {IRequestApplicationState} from './requestApplicationState';
+import {IServerApplicationState} from './serverApplicationState';
 
-export interface IHapijsStarterServerConfig {
+export interface IHapijsStarterServerConfig<ServerApplicationState extends IServerApplicationState = any,
+                                            RequestApplicationState extends IRequestApplicationState = any> {
     host: string;
     port: number;
     cors: boolean;
@@ -29,7 +32,10 @@ export interface IHapijsStarterServerConfig {
 
     cache: EnginePrototype<any> | ServerOptionsCache | ServerOptionsCache[];
 
-    hapiServerOptions?: Partial<ServerOptions>;
+    hapiServerOptions?: Partial<ServerOptions<ServerApplicationState, RequestApplicationState>>;
 
-    authValidateFunc(decoded: any, request: Request, tk: ResponseToolkit): ValidationResult | Promise<ValidationResult>;
+    authValidateFunc(decoded: any,
+                     request: Request<ServerApplicationState, RequestApplicationState>,
+                     tk: ResponseToolkit<ServerApplicationState, RequestApplicationState>)
+        : ValidationResult | Promise<ValidationResult>;
 }

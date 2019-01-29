@@ -8,26 +8,29 @@ import WinstonDailyRotateFile from 'winston-daily-rotate-file';
 import Transport from 'winston-transport';
 
 import {IHapijsStarterServerConfig} from './models/ihapijsStarterServerConfig';
+import {IRequestApplicationState} from './models/requestApplicationState';
 import {IServerApplicationState} from './models/serverApplicationState';
 
 import {defaultConfig} from './defaultConfig';
 
-export class Server {
-    private _config: IHapijsStarterServerConfig;
-    private _server: Hapi.Server | null = null;
-    private _app: IServerApplicationState | null = null;
+export class Server<ServerApplicationState extends IServerApplicationState = any,
+                    RequestApplicationState extends IRequestApplicationState = any> {
+
+    private _config: IHapijsStarterServerConfig<ServerApplicationState, RequestApplicationState>;
+    private _server: Hapi.Server<ServerApplicationState, RequestApplicationState> | null = null;
+    private _app: ServerApplicationState | null = null;
     private _appLogger: Logger | null = null;
     private _appTraceLogger: Logger | null = null;
     private _appActivityLogger: Logger | null = null;
 
     public get config() { return this._config; }
-    public get server() { return this._server as Hapi.Server; }
-    public get app() { return this._app as IServerApplicationState; }
+    public get server() { return this._server as Hapi.Server<ServerApplicationState, RequestApplicationState>; }
+    public get app() { return this._app as ServerApplicationState; }
     public get appLogger() { return this._appLogger as Logger; }
     public get appTraceLogger() { return this._appTraceLogger as Logger; }
     public get appActivityLogger() { return this._appActivityLogger as Logger; }
 
-    constructor(config?: Partial<IHapijsStarterServerConfig>) {
+    constructor(config?: Partial<IHapijsStarterServerConfig<ServerApplicationState, RequestApplicationState>>) {
         this._config = {...defaultConfig, ...(config || {})};
     }
 
@@ -81,9 +84,10 @@ export class Server {
 
     private configureHapiServer() {
         const {routes: additionalRouteOptions, ...additionalOptionsWithoutRouteOptions} =
-        this.config.hapiServerOptions || {} as Partial<ServerOptions>;
+        this.config.hapiServerOptions ||
+            {} as Partial<ServerOptions<ServerApplicationState, RequestApplicationState>>;
 
-        const hapiConfig: ServerOptions = {
+        const hapiConfig: ServerOptions<ServerApplicationState, RequestApplicationState> = {
             cache: this.config.cache,
             host: this.config.host,
             port: this.config.port,

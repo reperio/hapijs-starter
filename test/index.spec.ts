@@ -3,6 +3,8 @@ import path from 'path';
 import winston from 'winston';
 
 import {Server} from '../src';
+import {IServerApplicationState} from "../src/models/serverApplicationState";
+import {IRequestApplicationState} from "../src/models/requestApplicationState";
 
 const defaultSecret = '6ba6161c-62e9-4cd7-9f6e-c6f6bf88557d';
 
@@ -142,7 +144,7 @@ describe('CORS handling', () => {
 });
 
 describe('Server with default settings', () => {
-    let server: Server;
+    let server: Server<any, any>;
 
     beforeAll(async () => {
         const config = {authEnabled: true, authSecret: defaultSecret};
@@ -189,7 +191,7 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an unauthenticated route', async () => {
-        const route: ServerRoute = {
+        const route: ServerRoute<IServerApplicationState, IRequestApplicationState> = {
             method: 'GET',
             path: '/test',
             handler: (req, h) => {
@@ -234,7 +236,7 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an authenticated route', async () => {
-        const route: ServerRoute = {
+        const route: ServerRoute<IServerApplicationState, IRequestApplicationState> = {
             method: 'GET',
             path: '/test2',
             handler: (req, h) => {
@@ -258,7 +260,7 @@ describe('Server with default settings', () => {
         // tslint:disable-next-line:max-line-length
         const jwt = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJPbmxpbmUgSldUIEJ1aWxkZXIiLCJpYXQiOjE1MTY1NzM1NjksImF1ZCI6Ind3dy5leGFtcGxlLmNvbSIsInN1YiI6InRlc3RAZXhhbXBsZS5jb20iLCJHaXZlbk5hbWUiOiJKb2hubnkiLCJTdXJuYW1lIjoiUm9ja2V0IiwiRW1haWwiOiJqcm9ja2V0QGV4YW1wbGUuY29tIiwiUm9sZSI6WyJNYW5hZ2VyIiwiUHJvamVjdCBBZG1pbmlzdHJhdG9yIl19.lsWF4m157J-sVRsa_WYdR7pVPLolEm1hfJHQaEClesw';
 
-        const route: ServerRoute = {
+        const route: ServerRoute<IServerApplicationState, IRequestApplicationState> = {
             method: 'GET',
             path: '/test3',
             handler: (req, h) => {
@@ -282,8 +284,8 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering a plugin', async () => {
-        const register = async (innerServer: Hapi.Server) => {
-            const route: ServerRoute = {
+        const register = async (innerServer: Hapi.Server<IServerApplicationState, IRequestApplicationState>) => {
+            const route: ServerRoute<IServerApplicationState, IRequestApplicationState> = {
                 method: 'GET',
                 path: '/test',
                 handler: (req, h) => {
@@ -323,7 +325,7 @@ describe('Server with default settings', () => {
     });
 
     it('should allow registering an extension', async () => {
-        const route: ServerRoute = {
+        const route: ServerRoute<IServerApplicationState, IRequestApplicationState> = {
             method: 'GET',
             path: '/extension-test',
             handler: (req, h) => {
@@ -336,7 +338,7 @@ describe('Server with default settings', () => {
 
         server.server.route([route]);
 
-        const extension: ServerExtEventsRequestObject = {
+        const extension: ServerExtEventsRequestObject<IServerApplicationState, IRequestApplicationState> = {
             type: 'onRequest',
             method: (request, h) => {
                 (request.app as any).testValue = 'onPostAuthTest';
