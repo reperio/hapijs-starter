@@ -31,7 +31,7 @@
     "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
     "hoek": "^5.0.3",
     "winston": "^3.1.0",
-    "winston-daily-rotate-file": "^3.4.1"
+    "winston-daily-rotate-file": "^3.6.0"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
