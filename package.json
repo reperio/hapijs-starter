@@ -34,6 +34,7 @@
     "winston-daily-rotate-file": "^3.6.0"
   },
   "devDependencies": {
+    "@types/hapi": "https://github.com/ptorian/types-hapi.git#v0.0.1",
     "coveralls": "^3.0.0",
     "jest": "^22.1.4",
     "ts-jest": "^23.10.5",

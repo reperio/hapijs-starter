@@ -50,6 +50,19 @@
     "@types/podium" "*"
     "@types/shot" "*"
 
+"@types/hapi@https://github.com/ptorian/types-hapi.git#v0.0.1":
+  version "18.1.0"
+  resolved "https://github.com/ptorian/types-hapi.git#dd0f44c9c34ab363ab15ef278c233874ef223f98"
+  dependencies:
+    "@types/boom" "*"
+    "@types/catbox" "*"
+    "@types/iron" "*"
+    "@types/joi" "*"
+    "@types/mimos" "*"
+    "@types/node" "*"
+    "@types/podium" "*"
+    "@types/shot" "*"
+
 "@types/iron@*":
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/@types/iron/-/iron-5.0.1.tgz#5420bbda8623c48ee51b9a78ebad05d7305b4b24"
