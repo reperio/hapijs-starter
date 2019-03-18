@@ -8,6 +8,7 @@ export interface IHapijsStarterServerConfig {
     port: number;
     cors: boolean;
     corsOrigins: string[];
+    corsHeaders: string;
     defaultRoute: boolean;
     statusMonitor: boolean;
     authEnabled: boolean;
