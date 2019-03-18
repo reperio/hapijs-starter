@@ -6,7 +6,7 @@ export const defaultConfig: IHapijsStarterServerConfig = {
 
     cors: true,
     corsOrigins: [],
-    corsHeaders: 'Content-Type, Authorization',
+    accessControlAllowHeaders: 'Content-Type, Authorization',
     defaultRoute: true,
     statusMonitor: true,
 
