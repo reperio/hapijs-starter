@@ -74,6 +74,14 @@ export class Server {
         return this;
     }
 
+    public async registerAdditionalPlugin(plugin: Hapi.ServerRegisterPluginObject<any>) {
+        return await this.server.register(plugin);
+    }
+
+    public async registerExtension(extension: Hapi.ServerExtEventsObject) {
+        return await this.server.ext(extension);
+    }
+
     public async startServer() {
         await this.server.start();
         this.appLogger.info(`Server running at: ${this.server.info.uri}`);
@@ -215,7 +223,7 @@ export class Server {
 
                 response.type('text/plain');
                 response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-                response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+                response.header('Access-Control-Allow-Headers', this.config.accessControlAllowHeaders);
                 return response;
             },
             options: {
