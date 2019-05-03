@@ -24,12 +24,12 @@
   "dependencies": {
     "@types/hapi-auth-jwt2": "^8.0.2",
     "@types/jest": "^23.3.10",
-    "catbox-memory": "^4.0.1",
+    "@hapi/catbox-memory": "^4.0.1",
     "file-system": "^2.2.2",
-    "hapi": "^17.8.1",
-    "hapi-auth-jwt2": "8.1.0",
+    "@hapi/hapi": "^17.9.0",
+    "hapi-auth-jwt2": "8.4.0",
     "hapijs-status-monitor": "github:ziyasal/hapijs-status-monitor",
-    "hoek": "^5.0.3",
+    "@hapi/hoek": "^6.2.1",
     "winston": "^3.1.0",
     "winston-daily-rotate-file": "^3.4.1"
   },
