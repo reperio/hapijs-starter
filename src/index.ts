@@ -96,7 +96,9 @@ export class Server {
             host: this.config.host,
             port: this.config.port,
             routes: {
-                cors: this.config.cors,
+                cors: this.config.cors ? (
+                    this.config.authEnabled ? {credentials: true} : true
+                ) : false,
                 ...additionalRouteOptions
             },
             ...additionalOptionsWithoutRouteOptions
@@ -224,6 +226,7 @@ export class Server {
                 response.type('text/plain');
                 response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
                 response.header('Access-Control-Allow-Headers', this.config.accessControlAllowHeaders);
+                response.header('Access-Control-Allow-Credentials', 'true');
                 return response;
             },
             options: {
